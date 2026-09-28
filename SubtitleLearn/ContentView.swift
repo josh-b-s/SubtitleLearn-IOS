@@ -1,24 +1,36 @@
-//
-//  ContentView.swift
-//  SubtitleLearn
-//
-//  Created by Josh Brian Saputra on 27/9/2026.
-//
-
 import SwiftUI
 
 struct ContentView: View {
+    @State private var selection: Tab = .translate
+
+    enum Tab { case screenShare, translate, vocabulary, quiz, settings }
+
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        TabView(selection: $selection) {
+            ScreenShareView()
+                .tabItem { Label("Screen Share", systemImage: "airplayvideo") }
+                .tag(Tab.screenShare)
+
+            TranslateView()
+                .tabItem { Label("Translate", systemImage: "arrow.left.arrow.right") }
+                .tag(Tab.translate)
+
+            VocabularyView()
+                .tabItem { Label("Vocabulary", systemImage: "bookmark") }
+                .tag(Tab.vocabulary)
+
+            QuizView()
+                .tabItem { Label("Quiz", systemImage: "brain") }
+                .tag(Tab.quiz)
+
+            SettingsView()
+                .tabItem { Label("Settings", systemImage: "gearshape") }
+                .tag(Tab.settings)
         }
-        .padding()
     }
 }
 
 #Preview {
     ContentView()
+        .modelContainer(for: SavedWord.self, inMemory: true)
 }

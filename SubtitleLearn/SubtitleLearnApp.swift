@@ -1,11 +1,5 @@
-//
-//  SubtitleLearnApp.swift
-//  SubtitleLearn
-//
-//  Created by Josh Brian Saputra on 27/9/2026.
-//
-
 import SwiftUI
+import SwiftData
 
 @main
 struct SubtitleLearnApp: App {
@@ -13,5 +7,6 @@ struct SubtitleLearnApp: App {
         WindowGroup {
             ContentView()
         }
+        .modelContainer(for: SavedWord.self)
     }
 }
