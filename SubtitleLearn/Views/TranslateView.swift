@@ -6,10 +6,17 @@ struct TranslateView: View {
     @Query private var savedWords: [SavedWord]
 
     @State private var viewModel = TranslateViewModel()
-    @State private var showMicComingSoon = false
+    @Environment(\.scenePhase) private var scenePhase
     @FocusState private var inputFocused: Bool
 
     private var savedSet: Set<String> { Set(savedWords.map(\.word)) }
+
+    private var speechErrorBinding: Binding<Bool> {
+        Binding(
+            get: { viewModel.speechErrorMessage != nil },
+            set: { if !$0 { viewModel.speechErrorMessage = nil } }
+        )
+    }
 
     var body: some View {
         NavigationStack {
@@ -27,10 +34,14 @@ struct TranslateView: View {
             .navigationTitle("SubtitleLearn")
         }
         .task { await viewModel.loadDictionary() }
-        .alert("Microphone input", isPresented: $showMicComingSoon) {
+        .onChange(of: scenePhase) { _, phase in
+            if phase != .active { viewModel.stopListening() }
+        }
+        .onDisappear { viewModel.stopListening() }
+        .alert("Speech input", isPresented: speechErrorBinding) {
             Button("OK", role: .cancel) {}
         } message: {
-            Text("Live speech transcription is coming in the next stage.")
+            Text(viewModel.speechErrorMessage ?? "")
         }
     }
 
@@ -44,6 +55,7 @@ struct TranslateView: View {
                     .scrollContentBackground(.hidden)
                     .font(.title3)
                     .frame(minHeight: 110)
+                    .disabled(viewModel.isListening)
 
                 if viewModel.inputText.isEmpty {
                     Text("Paste or type Chinese text…")
@@ -56,19 +68,25 @@ struct TranslateView: View {
             }
 
             HStack {
-                Text("Mandarin Chinese")
+                Text(viewModel.isListening ? "Listening…" : "Mandarin Chinese")
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(viewModel.isListening ? Color.red : Color.secondary)
                 Spacer()
                 Button {
-                    showMicComingSoon = true
+                    Task { await viewModel.toggleListening() }
                 } label: {
-                    Image(systemName: "mic.fill")
+                    Image(systemName: viewModel.isListening ? "stop.fill" : "mic.fill")
                         .font(.title3)
+                        .foregroundStyle(viewModel.isListening ? Color.white : Color.accentColor)
+                        .symbolEffect(.pulse, isActive: viewModel.isListening)
                         .frame(width: 44, height: 44)
-                        .background(Color(.systemGroupedBackground), in: Circle())
+                        .background(
+                            viewModel.isListening ? Color.red : Color(.systemGroupedBackground),
+                            in: Circle()
+                        )
                 }
-                .accessibilityLabel("Speak Chinese")
+                .sensoryFeedback(.impact, trigger: viewModel.isListening)
+                .accessibilityLabel(viewModel.isListening ? "Stop listening" : "Speak Chinese")
             }
         }
         .padding(.horizontal, 12)

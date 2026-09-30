@@ -10,11 +10,20 @@ final class TranslateViewModel {
     private(set) var isDictionaryReady = false
     private(set) var dictionaryFailedToLoad = false
 
+    // Speech input
+    private(set) var isListening = false
+    var speechErrorMessage: String?
+
     private var dictionary: ChineseDictionary?
+    private let transcriber = SpeechTranscriber()
+    private var listeningSession = UUID()
+    private var textBeforeListening = ""
 
     var canTranslate: Bool {
-        isDictionaryReady && !inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        isDictionaryReady && !isListening && !inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
+
+    // MARK: - Dictionary
 
     func loadDictionary() async {
         guard dictionary == nil else { return }
@@ -30,5 +39,65 @@ final class TranslateViewModel {
         guard let dictionary else { return }
         tokens = dictionary.tokens(for: inputText)
         hasTranslated = true
+    }
+
+    // MARK: - Speech input
+
+    func toggleListening() async {
+        if isListening {
+            stopListening()
+        } else {
+            await startListening()
+        }
+    }
+
+    func startListening() async {
+        guard !isListening else { return }
+        do {
+            try await SpeechTranscriber.requestPermissions()
+
+            let session = UUID()
+            listeningSession = session
+            textBeforeListening = inputText.trimmingCharacters(in: .whitespacesAndNewlines)
+
+            try transcriber.start(
+                onUpdate: { [weak self] transcript, isFinal in
+                    Task { @MainActor in
+                        self?.handleTranscript(transcript, isFinal: isFinal, session: session)
+                    }
+                },
+                onFailure: { [weak self] error in
+                    Task { @MainActor in
+                        self?.handleSpeechFailure(error, session: session)
+                    }
+                }
+            )
+            isListening = true
+        } catch {
+            speechErrorMessage = error.localizedDescription
+        }
+    }
+
+    func stopListening() {
+        guard isListening else { return }
+        transcriber.stop()      // the final transcript can still arrive after this
+        isListening = false
+    }
+
+    private func handleTranscript(_ transcript: String, isFinal: Bool, session: UUID) {
+        // Ignore late callbacks from an earlier listening session.
+        guard session == listeningSession else { return }
+
+        // The recognizer returns the whole transcript so far, so replace rather than append.
+        inputText = textBeforeListening + transcript
+        translate()
+
+        if isFinal { stopListening() }
+    }
+
+    private func handleSpeechFailure(_ error: Error, session: UUID) {
+        guard session == listeningSession, isListening else { return }
+        stopListening()
+        speechErrorMessage = "Speech recognition stopped: \(error.localizedDescription)"
     }
 }
