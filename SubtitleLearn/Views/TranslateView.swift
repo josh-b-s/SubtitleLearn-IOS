@@ -24,6 +24,11 @@ struct TranslateView: View {
                 VStack(alignment: .leading, spacing: 20) {
                     inputCard
                     translateButton
+                    #if DEBUG
+                    Button("Test speech with sample audio") { viewModel.transcribeSample() }
+                        .font(.footnote)
+                        .disabled(viewModel.isListening)
+                    #endif
                     breakdownSection
                 }
                 .padding(.horizontal, 16)

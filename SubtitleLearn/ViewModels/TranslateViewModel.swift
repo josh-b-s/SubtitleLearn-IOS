@@ -1,5 +1,6 @@
 import Foundation
 import Observation
+import Speech
 
 @MainActor
 @Observable
@@ -60,7 +61,7 @@ final class TranslateViewModel {
             listeningSession = session
             textBeforeListening = inputText.trimmingCharacters(in: .whitespacesAndNewlines)
 
-            try transcriber.start(
+            try await transcriber.start(
                 onUpdate: { [weak self] transcript, isFinal in
                     Task { @MainActor in
                         self?.handleTranscript(transcript, isFinal: isFinal, session: session)
@@ -75,6 +76,47 @@ final class TranslateViewModel {
             isListening = true
         } catch {
             speechErrorMessage = error.localizedDescription
+        }
+    }
+
+    /// Debug helper: runs recognition on a bundled sample (sample.aiff / .m4a / .wav / .mp3)
+    /// so the speech pipeline can be tested without a microphone.
+    func transcribeSample() {
+        guard !isListening else { return }
+        let url = ["aiff", "m4a", "wav", "mp3", "caf"]
+            .compactMap { Bundle.main.url(forResource: "sample", withExtension: $0) }
+            .first
+        guard let url else {
+            speechErrorMessage = "No sample audio found. Add sample.aiff (or .m4a/.wav) to the app target."
+            return
+        }
+        Task {
+            do {
+                let auth: SFSpeechRecognizerAuthorizationStatus = await withCheckedContinuation { continuation in
+                    SFSpeechRecognizer.requestAuthorization { continuation.resume(returning: $0) }
+                }
+                guard auth == .authorized else { throw SpeechInputError.speechPermissionDenied }
+
+                let session = UUID()
+                listeningSession = session
+                textBeforeListening = inputText.trimmingCharacters(in: .whitespacesAndNewlines)
+                try transcriber.transcribeFile(
+                    at: url,
+                    onUpdate: { [weak self] transcript, isFinal in
+                        Task { @MainActor in
+                            self?.handleTranscript(transcript, isFinal: isFinal, session: session)
+                        }
+                    },
+                    onFailure: { [weak self] error in
+                        Task { @MainActor in
+                            self?.handleSpeechFailure(error, session: session)
+                        }
+                    }
+                )
+                isListening = true
+            } catch {
+                speechErrorMessage = error.localizedDescription
+            }
         }
     }
 

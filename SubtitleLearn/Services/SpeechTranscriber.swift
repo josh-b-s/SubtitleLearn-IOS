@@ -28,9 +28,12 @@ enum SpeechInputError: LocalizedError {
 /// and a main-actor-isolated closure there crashes at runtime. Results are handed back
 /// through @Sendable callbacks and the caller hops to the main actor.
 final class SpeechTranscriber: @unchecked Sendable {
-    private let audioEngine = AVAudioEngine()
+    // Lazy so file-based testing never touches the audio hardware at all.
+    private lazy var audioEngine = AVAudioEngine()
+    private var micInUse = false
     private let recognizer = SFSpeechRecognizer(locale: Locale(identifier: "zh-CN"))
     private var request: SFSpeechAudioBufferRecognitionRequest?
+    private var fileRequest: SFSpeechURLRecognitionRequest?
     private var task: SFSpeechRecognitionTask?
 
     /// Use the downloaded on-device model when the device has one (works offline, no time limit).
@@ -57,14 +60,18 @@ final class SpeechTranscriber: @unchecked Sendable {
     func start(
         onUpdate: @escaping @Sendable (_ transcript: String, _ isFinal: Bool) -> Void,
         onFailure: @escaping @Sendable (Error) -> Void
-    ) throws {
+    ) async throws {
         cancel()
 
         guard let recognizer, recognizer.isAvailable else { throw SpeechInputError.recognizerUnavailable }
 
+        micInUse = true
+
+        // .playAndRecord is what most working AVAudioEngine + Speech setups use —
+        // .record alone is less common and less well exercised on Simulator.
         let session = AVAudioSession.sharedInstance()
-        try session.setCategory(.record, mode: .measurement, options: .duckOthers)
-        try session.setActive(true)
+        try session.setCategory(.playAndRecord, mode: .measurement, options: [.duckOthers, .defaultToSpeaker])
+        try session.setActive(true, options: .notifyOthersOnDeactivation)
 
         let request = SFSpeechAudioBufferRecognitionRequest()
         request.shouldReportPartialResults = true
@@ -75,7 +82,12 @@ final class SpeechTranscriber: @unchecked Sendable {
 
         let inputNode = audioEngine.inputNode
         let format = inputNode.outputFormat(forBus: 0)
-        guard format.sampleRate > 0 else {
+        print("SpeechTranscriber: input format = \(format.sampleRate) Hz, \(format.channelCount) ch")
+
+        // installTap crashes the process (an uncatchable Obj-C exception) if the format
+        // is invalid, so this check MUST happen before installTap, not just around
+        // audioEngine.start() — the crash happens earlier than that.
+        guard format.sampleRate > 0, format.channelCount > 0 else {
             cancel()
             throw SpeechInputError.noInputAudio
         }
@@ -89,8 +101,9 @@ final class SpeechTranscriber: @unchecked Sendable {
             audioEngine.prepare()
             try audioEngine.start()
         } catch {
+            print("SpeechTranscriber: audioEngine.start() failed — \(error)")
             cancel()
-            throw error
+            throw SpeechInputError.noInputAudio
         }
 
         task = recognizer.recognitionTask(with: request) { result, error in
@@ -105,11 +118,14 @@ final class SpeechTranscriber: @unchecked Sendable {
 
     /// Stops the mic but lets the recognizer deliver its final result.
     func stop() {
-        if audioEngine.isRunning { audioEngine.stop() }
-        audioEngine.inputNode.removeTap(onBus: 0)
+        if micInUse {
+            if audioEngine.isRunning { audioEngine.stop() }
+            audioEngine.inputNode.removeTap(onBus: 0)
+            try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+            micInUse = false
+        }
         request?.endAudio()
         request = nil
-        try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
     }
 
     /// Stops everything immediately and discards any pending result.
@@ -117,5 +133,35 @@ final class SpeechTranscriber: @unchecked Sendable {
         stop()
         task?.cancel()
         task = nil
+        fileRequest = nil
+    }
+
+    // MARK: - File input (testing without a microphone)
+
+    /// Runs the same recognizer on a bundled audio file instead of the mic.
+    /// Never touches AVAudioEngine or AVAudioSession, so it works even when the
+    /// Simulator's audio hardware is broken. Callbacks match `start(...)`.
+    func transcribeFile(
+        at url: URL,
+        onUpdate: @escaping @Sendable (_ transcript: String, _ isFinal: Bool) -> Void,
+        onFailure: @escaping @Sendable (Error) -> Void
+    ) throws {
+        cancel()
+        guard let recognizer, recognizer.isAvailable else { throw SpeechInputError.recognizerUnavailable }
+
+        let request = SFSpeechURLRecognitionRequest(url: url)
+        request.shouldReportPartialResults = true
+        request.addsPunctuation = true
+        if usesOnDevice { request.requiresOnDeviceRecognition = true }
+        fileRequest = request
+
+        task = recognizer.recognitionTask(with: request) { result, error in
+            if let result {
+                onUpdate(result.bestTranscription.formattedString, result.isFinal)
+            }
+            if let error {
+                onFailure(error)
+            }
+        }
     }
 }
