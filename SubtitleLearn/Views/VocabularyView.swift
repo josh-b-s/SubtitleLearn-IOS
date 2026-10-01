@@ -25,6 +25,14 @@ struct VocabularyView: View {
                                         .font(.subheadline)
                                         .foregroundStyle(.secondary)
                                 }
+                                Spacer()
+                                if word.repetitions > 0 {
+                                    Text(word.isDue ? "Due" : "Reviewed")
+                                        .font(.caption.weight(.semibold))
+                                        .foregroundStyle(word.isDue ? Color.orange : Color.secondary)
+                                        .padding(.horizontal, 8).padding(.vertical, 4)
+                                        .background(Capsule().fill((word.isDue ? Color.orange : Color.secondary).opacity(0.15)))
+                                }
                             }
                         }
                         .onDelete { offsets in

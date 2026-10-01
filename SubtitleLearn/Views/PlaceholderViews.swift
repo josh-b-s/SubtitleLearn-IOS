@@ -9,24 +9,3 @@ struct ScreenShareView: View {
         }
     }
 }
-
-struct QuizView: View {
-    var body: some View {
-        NavigationStack {
-            ContentUnavailableView("Quiz", systemImage: "brain",
-                                   description: Text("AI-generated quizzes and spaced repetition are coming in a later stage."))
-                .navigationTitle("Quiz")
-        }
-    }
-}
-
-struct SettingsView: View {
-    var body: some View {
-        NavigationStack {
-            List {
-                Text("Settings coming soon.").foregroundStyle(.secondary)
-            }
-            .navigationTitle("Settings")
-        }
-    }
-}
