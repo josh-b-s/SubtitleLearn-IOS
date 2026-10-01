@@ -18,25 +18,47 @@ struct TranslateView: View {
         )
     }
 
+    private static let bottomID = "bottom"
+
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 20) {
-                    inputCard
-                    translateButton
-                    #if DEBUG
-                    Button("Test speech with sample audio") { viewModel.transcribeSample() }
-                        .font(.footnote)
-                        .disabled(viewModel.isListening)
-                    #endif
-                    breakdownSection
+            ScrollViewReader { proxy in
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 20) {
+                        if viewModel.isListening {
+                            listeningHint
+                        } else {
+                            inputCard
+                            translateButton
+                            #if DEBUG
+                            Button("Test speech with sample audio") { viewModel.transcribeSample() }
+                                .font(.footnote)
+                            #endif
+                        }
+                        breakdownSection
+                        Color.clear.frame(height: 1).id(Self.bottomID)
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 24)
                 }
-                .padding(.horizontal, 16)
-                .padding(.bottom, 24)
+                .scrollDismissesKeyboard(.interactively)
+                // Follow the live transcript while recording.
+                .onChange(of: viewModel.inputText) { _, _ in
+                    guard viewModel.isListening else { return }
+                    DispatchQueue.main.async {
+                        withAnimation(.easeOut(duration: 0.15)) {
+                            proxy.scrollTo(Self.bottomID, anchor: .bottom)
+                        }
+                    }
+                }
             }
-            .scrollDismissesKeyboard(.interactively)
             .background(Color(.systemGroupedBackground))
             .navigationTitle("SubtitleLearn")
+            .safeAreaInset(edge: .bottom) {
+                if viewModel.isListening {
+                    StopRecordingBar { viewModel.stopListening() }
+                }
+            }
         }
         .task { await viewModel.loadDictionary() }
         .onChange(of: scenePhase) { _, phase in
@@ -50,6 +72,15 @@ struct TranslateView: View {
         }
     }
 
+    private var listeningHint: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "waveform").foregroundStyle(.red).symbolEffect(.variableColor.iterative)
+            Text(viewModel.tokens.isEmpty ? "Listening, start speaking…" : "Listening…")
+                .foregroundStyle(.secondary)
+        }
+        .padding(.top, 8)
+    }
+
     // MARK: - Input
 
     private var inputCard: some View {
@@ -60,7 +91,6 @@ struct TranslateView: View {
                     .scrollContentBackground(.hidden)
                     .font(.title3)
                     .frame(minHeight: 110)
-                    .disabled(viewModel.isListening)
 
                 if viewModel.inputText.isEmpty {
                     Text("Paste or type Chinese text…")
@@ -73,25 +103,20 @@ struct TranslateView: View {
             }
 
             HStack {
-                Text(viewModel.isListening ? "Listening…" : "Mandarin Chinese")
+                Text("Mandarin Chinese")
                     .font(.subheadline)
-                    .foregroundStyle(viewModel.isListening ? Color.red : Color.secondary)
+                    .foregroundStyle(.secondary)
                 Spacer()
                 Button {
-                    Task { await viewModel.toggleListening() }
+                    inputFocused = false
+                    Task { await viewModel.startListening() }
                 } label: {
-                    Image(systemName: viewModel.isListening ? "stop.fill" : "mic.fill")
+                    Image(systemName: "mic.fill")
                         .font(.title3)
-                        .foregroundStyle(viewModel.isListening ? Color.white : Color.accentColor)
-                        .symbolEffect(.pulse, isActive: viewModel.isListening)
                         .frame(width: 44, height: 44)
-                        .background(
-                            viewModel.isListening ? Color.red : Color(.systemGroupedBackground),
-                            in: Circle()
-                        )
+                        .background(Color(.systemGroupedBackground), in: Circle())
                 }
-                .sensoryFeedback(.impact, trigger: viewModel.isListening)
-                .accessibilityLabel(viewModel.isListening ? "Stop listening" : "Speak Chinese")
+                .accessibilityLabel("Speak Chinese")
             }
         }
         .padding(.horizontal, 12)
