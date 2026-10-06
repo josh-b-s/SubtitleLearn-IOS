@@ -16,6 +16,11 @@ final class AppSettings {
         didSet { UserDefaults.standard.set(questionsPerQuiz, forKey: Self.countDefaultsKey) }
     }
 
+    var preferOnDeviceSpeech: Bool {
+        didSet { UserDefaults.standard.set(preferOnDeviceSpeech, forKey: Self.onDeviceDefaultsKey) }
+    }
+
+    private static let onDeviceDefaultsKey = "preferOnDeviceSpeech"
     private static let keyDefaultsKey = "geminiAPIKey"
     private static let countDefaultsKey = "questionsPerQuiz"
 
@@ -23,5 +28,6 @@ final class AppSettings {
         geminiAPIKey = UserDefaults.standard.string(forKey: Self.keyDefaultsKey) ?? ""
         let saved = UserDefaults.standard.integer(forKey: Self.countDefaultsKey)
         questionsPerQuiz = saved > 0 ? saved : 8
+        preferOnDeviceSpeech = UserDefaults.standard.object(forKey: Self.onDeviceDefaultsKey) as? Bool ?? true
     }
 }

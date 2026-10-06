@@ -7,6 +7,7 @@ struct TranslateView: View {
 
     @State private var viewModel = TranslateViewModel()
     @Environment(\.scenePhase) private var scenePhase
+    @State private var selectedToken: WordToken?
     @FocusState private var inputFocused: Bool
 
     private var savedSet: Set<String> { Set(savedWords.map(\.word)) }
@@ -33,6 +34,8 @@ struct TranslateView: View {
                             #if DEBUG
                             Button("Test speech with sample audio") { viewModel.transcribeSample() }
                                 .font(.footnote)
+                            Button("Simulate live transcript (no speech service)") { viewModel.simulateLiveTranscript() }
+                                .font(.footnote)
                             #endif
                         }
                         breakdownSection
@@ -58,6 +61,12 @@ struct TranslateView: View {
                 if viewModel.isListening {
                     StopRecordingBar { viewModel.stopListening() }
                 }
+            }
+        }
+        .sheet(item: $selectedToken) { token in
+            WordDetailSheet(token: token, isSaved: savedSet.contains(token.text)) {
+                toggleSaved(token)
+                selectedToken = nil
             }
         }
         .task { await viewModel.loadDictionary() }
@@ -165,7 +174,7 @@ struct TranslateView: View {
             FlowLayout(spacing: 12) {
                 ForEach(viewModel.tokens) { token in
                     WordCard(token: token, isSaved: savedSet.contains(token.text))
-                        .onTapGesture { toggleSaved(token) }
+                        .onTapGesture { selectedToken = token }
                 }
             }
             .sensoryFeedback(.selection, trigger: savedWords.count)

@@ -42,7 +42,7 @@ struct WordCard: View {
         }
         .contentShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
         .accessibilityElement(children: .combine)
-        .accessibilityHint(isSaved ? "Double tap to remove from vocabulary" : "Double tap to save to vocabulary")
+        .accessibilityHint("Double tap for details and to save")
         .accessibilityAddTraits(isSaved ? .isSelected : [])
     }
 }

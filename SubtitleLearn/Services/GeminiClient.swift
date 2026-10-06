@@ -18,7 +18,7 @@ enum GeminiError: LocalizedError {
 
 struct GeminiClient {
     var apiKey: String
-    var model: String = "gemini-3.8-flash"
+    var model: String = "gemini-2.0-flash"
 
     /// Sends `prompt` and asks Gemini to return JSON matching `schema`
     /// (an OpenAPI-subset schema dictionary, per Gemini's structured output support).

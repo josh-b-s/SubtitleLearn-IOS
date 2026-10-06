@@ -8,6 +8,14 @@ struct SettingsView: View {
         NavigationStack {
             Form {
                 Section {
+                    Toggle("On-device recognition", isOn: $settings.preferOnDeviceSpeech)
+                } header: {
+                    Text("Speech")
+                } footer: {
+                    Text("On: works offline with no time limit, but needs the Mandarin model and is less accurate. Off: Apple's servers, more accurate but needs internet. The Simulator doesn't support on-device, so turn this off there.")
+                }
+
+                Section {
                     SecureField("Gemini API key", text: $apiKeyDraft)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()

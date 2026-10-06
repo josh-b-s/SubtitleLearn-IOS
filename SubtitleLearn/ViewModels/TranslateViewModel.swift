@@ -61,6 +61,7 @@ final class TranslateViewModel {
             listeningSession = session
             textBeforeListening = inputText.trimmingCharacters(in: .whitespacesAndNewlines)
 
+            transcriber.preferOnDevice = AppSettings.shared.preferOnDeviceSpeech
             try await transcriber.start(
                 onUpdate: { [weak self] transcript, isFinal in
                     Task { @MainActor in
@@ -100,6 +101,7 @@ final class TranslateViewModel {
                 let session = UUID()
                 listeningSession = session
                 textBeforeListening = inputText.trimmingCharacters(in: .whitespacesAndNewlines)
+                transcriber.preferOnDevice = AppSettings.shared.preferOnDeviceSpeech
                 try transcriber.transcribeFile(
                     at: url,
                     onUpdate: { [weak self] transcript, isFinal in
@@ -119,6 +121,28 @@ final class TranslateViewModel {
             }
         }
     }
+
+    #if DEBUG
+    /// Streams a canned transcript char by char, to test the live UI without Apple's recognizer.
+    func simulateLiveTranscript() {
+        guard !isListening else { return }
+        let session = UUID()
+        listeningSession = session
+        textBeforeListening = inputText.trimmingCharacters(in: .whitespacesAndNewlines)
+        isListening = true
+        let sentence = "我喜欢学习中文。我每天看中国电影,也喜欢听音乐。今天天气很好,我们一起去公园玩吧。"
+        Task {
+            var shown = ""
+            for char in sentence {
+                guard session == listeningSession, isListening else { return }
+                shown.append(char)
+                handleTranscript(shown, isFinal: false, session: session)
+                try? await Task.sleep(nanoseconds: 150_000_000)
+            }
+            handleTranscript(shown, isFinal: true, session: session)
+        }
+    }
+    #endif
 
     func stopListening() {
         guard isListening else { return }
@@ -140,6 +164,10 @@ final class TranslateViewModel {
     private func handleSpeechFailure(_ error: Error, session: UUID) {
         guard session == listeningSession, isListening else { return }
         stopListening()
-        speechErrorMessage = "Speech recognition stopped: \(error.localizedDescription)"
+        if (error as NSError).code == 1101 {
+            speechErrorMessage = "On-device recognition isn't available here (the Simulator doesn't support it). Turn it off in Settings > Speech."
+        } else {
+            speechErrorMessage = "Speech recognition stopped: \(error.localizedDescription)"
+        }
     }
 }
