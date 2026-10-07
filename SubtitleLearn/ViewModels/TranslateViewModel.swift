@@ -28,9 +28,7 @@ final class TranslateViewModel {
 
     func loadDictionary() async {
         guard dictionary == nil else { return }
-        let loaded = await Task.detached(priority: .userInitiated) {
-            try? ChineseDictionary.loadBundled()
-        }.value
+        let loaded = await DictionaryLoader.shared.value
         dictionary = loaded
         isDictionaryReady = loaded != nil
         dictionaryFailedToLoad = loaded == nil

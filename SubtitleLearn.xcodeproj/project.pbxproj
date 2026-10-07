@@ -29,9 +29,22 @@
 		D8D57A96306A1B92004AF07D /* SubtitleLearnUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SubtitleLearnUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		D8BCA94030765AD0001157CE /* Exceptions for "SubtitleLearn" folder in "SubtitleLearn" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = D8D57A7E306A1B8D004AF07D /* SubtitleLearn */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		D8D57A81306A1B8D004AF07D /* SubtitleLearn */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				D8BCA94030765AD0001157CE /* Exceptions for "SubtitleLearn" folder in "SubtitleLearn" target */,
+			);
 			path = SubtitleLearn;
 			sourceTree = "<group>";
 		};
@@ -195,6 +208,9 @@
 			);
 			mainGroup = D8D57A76306A1B8D004AF07D;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				D8BCA93E30765AB5001157CE /* XCRemoteSwiftPackageReference "swiftui-pipify" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = D8D57A80306A1B8D004AF07D /* Products */;
 			projectDirPath = "";
@@ -397,6 +413,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = SubtitleLearn/Info.plist;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "SubtitleLearn listens to Chinese speech so it can show the words, pinyin and meanings.";
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "SubtitleLearn converts your speech to text to translate it.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -426,6 +443,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = SubtitleLearn/Info.plist;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "SubtitleLearn listens to Chinese speech so it can show the words, pinyin and meanings.";
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "SubtitleLearn converts your speech to text to translate it.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -554,6 +572,17 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		D8BCA93E30765AB5001157CE /* XCRemoteSwiftPackageReference "swiftui-pipify" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/getsidetrack/swiftui-pipify.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.5.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
 	};
 	rootObject = D8D57A77306A1B8D004AF07D /* Project object */;
 }
