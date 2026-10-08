@@ -1,44 +1,52 @@
 import Foundation
 import Combine
 
-/// Feeds a mock subtitle stream to the PiP view: words of a sentence appear
-/// one by one, then the sentence clears and the next one starts.
+/// One utterance, shown on its own line.
+struct PipLine: Identifiable {
+    let id: Int
+    let tokens: [WordToken]
+}
+
+/// Holds the lines shown in the PiP window. The view shows the newest rows.
 /// ObservableObject (not @Observable) so ImageRenderer reliably re-renders.
 @MainActor
 final class PipSubtitleModel: ObservableObject {
-    @Published private(set) var tokens: [WordToken] = []
+    /// Cap on cards kept; the oldest whole lines are dropped past it.
+    static let maxTokens = 40
 
-    private var task: Task<Void, Never>?
-    private let sentences = [
-        "我喜欢学习中文",
-        "今天天气很好",
-        "我们一起去公园玩",
-        "你想喝什么",
-        "这部电影很有意思"
-    ]
+    @Published private(set) var lines: [PipLine] = []
 
-    func start() {
-        guard task == nil else { return }
-        task = Task {
-            guard let dictionary = await DictionaryLoader.shared.value else { return }
-            var index = 0
-            while !Task.isCancelled {
-                let words = dictionary.tokens(for: sentences[index % sentences.count])
-                for count in words.indices {
-                    guard !Task.isCancelled else { return }
-                    tokens = Array(words.prefix(count + 1))
-                    try? await Task.sleep(for: .milliseconds(700))
-                }
-                try? await Task.sleep(for: .seconds(2))
-                tokens = []
-                index += 1
-            }
+    private var committed: [PipLine] = []
+    private var nextID = 0
+
+    /// `segment` is the current (possibly partial) utterance. When `isFinal`,
+    /// it becomes a finished line and the next utterance starts a new one.
+    func update(segment: [WordToken], isFinal: Bool) {
+        guard !segment.isEmpty else {
+            lines = committed
+            return
+        }
+        let indexed = segment.enumerated().map { index, token in
+            WordToken(id: index, text: token.text, pinyin: token.pinyin, meanings: token.meanings)
+        }
+        lines = committed + [PipLine(id: nextID, tokens: indexed)]
+        if isFinal {
+            committed = trimmed(lines)
+            lines = committed
+            nextID += 1
         }
     }
 
-    func stop() {
-        task?.cancel()
-        task = nil
-        tokens = []
+    func clear() {
+        committed = []
+        lines = []
+    }
+
+    private func trimmed(_ all: [PipLine]) -> [PipLine] {
+        var result = all
+        while result.count > 1, result.reduce(0, { $0 + $1.tokens.count }) > Self.maxTokens {
+            result.removeFirst()
+        }
+        return result
     }
 }

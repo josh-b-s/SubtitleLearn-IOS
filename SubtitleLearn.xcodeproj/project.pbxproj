@@ -6,6 +6,14 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		D847A3663076684D00AB1E13 /* BroadcastShared.swift in Sources */ = {isa = PBXBuildFile; fileRef = D847A3643076684D00AB1E13 /* BroadcastShared.swift */; };
+		D847A3673076684D00AB1E13 /* BroadcastShared.swift in Sources */ = {isa = PBXBuildFile; fileRef = D847A3643076684D00AB1E13 /* BroadcastShared.swift */; };
+		D8E542B1307663D100D000E2 /* ReplayKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8E542B0307663D000D000E2 /* ReplayKit.framework */; };
+		D8E542B8307663D100D000E2 /* SubtitleBroadcast.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = D8E542AE307663D000D000E2 /* SubtitleBroadcast.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		D8BCA94030765AB5001157CE /* Pipify in Frameworks */ = {isa = PBXBuildFile; productRef = D8BCA93F30765AB5001157CE /* Pipify */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		D8D57A8D306A1B92004AF07D /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -21,16 +29,47 @@
 			remoteGlobalIDString = D8D57A7E306A1B8D004AF07D;
 			remoteInfo = SubtitleLearn;
 		};
+		D8E542B6307663D100D000E2 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D8D57A77306A1B8D004AF07D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D8E542AD307663D000D000E2;
+			remoteInfo = SubtitleBroadcast;
+		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		D8E542BD307663D100D000E2 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				D8E542B8307663D100D000E2 /* SubtitleBroadcast.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		D847A3643076684D00AB1E13 /* BroadcastShared.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BroadcastShared.swift; sourceTree = "<group>"; };
 		D8D57A7F306A1B8D004AF07D /* SubtitleLearn.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SubtitleLearn.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8D57A8C306A1B92004AF07D /* SubtitleLearnTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SubtitleLearnTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8D57A96306A1B92004AF07D /* SubtitleLearnUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SubtitleLearnUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		D8E542AE307663D000D000E2 /* SubtitleBroadcast.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = SubtitleBroadcast.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		D8E542B0307663D000D000E2 /* ReplayKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ReplayKit.framework; path = System/Library/Frameworks/ReplayKit.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		D8BCA94030765AD0001157CE /* Exceptions for "SubtitleLearn" folder in "SubtitleLearn" target */ = {
+		D8E542B9307663D100D000E2 /* Exceptions for "SubtitleBroadcast" folder in "SubtitleBroadcast" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = D8E542AD307663D000D000E2 /* SubtitleBroadcast */;
+		};
+		D8E542C0307663D100D000E2 /* Exceptions for "SubtitleLearn" folder in "SubtitleLearn" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
@@ -43,7 +82,7 @@
 		D8D57A81306A1B8D004AF07D /* SubtitleLearn */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				D8BCA94030765AD0001157CE /* Exceptions for "SubtitleLearn" folder in "SubtitleLearn" target */,
+				D8E542C0307663D100D000E2 /* Exceptions for "SubtitleLearn" folder in "SubtitleLearn" target */,
 			);
 			path = SubtitleLearn;
 			sourceTree = "<group>";
@@ -58,6 +97,14 @@
 			path = SubtitleLearnUITests;
 			sourceTree = "<group>";
 		};
+		D8E542B2307663D100D000E2 /* SubtitleBroadcast */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				D8E542B9307663D100D000E2 /* Exceptions for "SubtitleBroadcast" folder in "SubtitleBroadcast" target */,
+			);
+			path = SubtitleBroadcast;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -65,6 +112,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D8BCA94030765AB5001157CE /* Pipify in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -82,16 +130,35 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D8E542AB307663D000D000E2 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D8E542B1307663D100D000E2 /* ReplayKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		D847A3653076684D00AB1E13 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				D847A3643076684D00AB1E13 /* BroadcastShared.swift */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
 		D8D57A76306A1B8D004AF07D = {
 			isa = PBXGroup;
 			children = (
 				D8D57A81306A1B8D004AF07D /* SubtitleLearn */,
 				D8D57A8F306A1B92004AF07D /* SubtitleLearnTests */,
 				D8D57A99306A1B92004AF07D /* SubtitleLearnUITests */,
+				D8E542B2307663D100D000E2 /* SubtitleBroadcast */,
+				D8E542AF307663D000D000E2 /* Frameworks */,
 				D8D57A80306A1B8D004AF07D /* Products */,
+				D847A3653076684D00AB1E13 /* Shared */,
 			);
 			sourceTree = "<group>";
 		};
@@ -101,8 +168,17 @@
 				D8D57A7F306A1B8D004AF07D /* SubtitleLearn.app */,
 				D8D57A8C306A1B92004AF07D /* SubtitleLearnTests.xctest */,
 				D8D57A96306A1B92004AF07D /* SubtitleLearnUITests.xctest */,
+				D8E542AE307663D000D000E2 /* SubtitleBroadcast.appex */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		D8E542AF307663D000D000E2 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				D8E542B0307663D000D000E2 /* ReplayKit.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -115,16 +191,19 @@
 				D8D57A7B306A1B8D004AF07D /* Sources */,
 				D8D57A7C306A1B8D004AF07D /* Frameworks */,
 				D8D57A7D306A1B8D004AF07D /* Resources */,
+				D8E542BD307663D100D000E2 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				D8E542B7307663D100D000E2 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				D8D57A81306A1B8D004AF07D /* SubtitleLearn */,
 			);
 			name = SubtitleLearn;
 			packageProductDependencies = (
+				D8BCA93F30765AB5001157CE /* Pipify */,
 			);
 			productName = SubtitleLearn;
 			productReference = D8D57A7F306A1B8D004AF07D /* SubtitleLearn.app */;
@@ -176,6 +255,28 @@
 			productReference = D8D57A96306A1B92004AF07D /* SubtitleLearnUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		D8E542AD307663D000D000E2 /* SubtitleBroadcast */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D8E542BA307663D100D000E2 /* Build configuration list for PBXNativeTarget "SubtitleBroadcast" */;
+			buildPhases = (
+				D8E542AA307663D000D000E2 /* Sources */,
+				D8E542AB307663D000D000E2 /* Frameworks */,
+				D8E542AC307663D000D000E2 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				D8E542B2307663D100D000E2 /* SubtitleBroadcast */,
+			);
+			name = SubtitleBroadcast;
+			packageProductDependencies = (
+			);
+			productName = SubtitleBroadcast;
+			productReference = D8E542AE307663D000D000E2 /* SubtitleBroadcast.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -196,6 +297,10 @@
 					D8D57A95306A1B92004AF07D = {
 						CreatedOnToolsVersion = 16.4;
 						TestTargetID = D8D57A7E306A1B8D004AF07D;
+					};
+					D8E542AD307663D000D000E2 = {
+						CreatedOnToolsVersion = 16.4;
+						LastSwiftMigration = 1640;
 					};
 				};
 			};
@@ -219,6 +324,7 @@
 				D8D57A7E306A1B8D004AF07D /* SubtitleLearn */,
 				D8D57A8B306A1B92004AF07D /* SubtitleLearnTests */,
 				D8D57A95306A1B92004AF07D /* SubtitleLearnUITests */,
+				D8E542AD307663D000D000E2 /* SubtitleBroadcast */,
 			);
 		};
 /* End PBXProject section */
@@ -245,6 +351,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D8E542AC307663D000D000E2 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -252,6 +365,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D847A3663076684D00AB1E13 /* BroadcastShared.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -269,6 +383,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D8E542AA307663D000D000E2 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D847A3673076684D00AB1E13 /* BroadcastShared.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -281,6 +403,11 @@
 			isa = PBXTargetDependency;
 			target = D8D57A7E306A1B8D004AF07D /* SubtitleLearn */;
 			targetProxy = D8D57A97306A1B92004AF07D /* PBXContainerItemProxy */;
+		};
+		D8E542B7307663D100D000E2 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D8E542AD307663D000D000E2 /* SubtitleBroadcast */;
+			targetProxy = D8E542B6307663D100D000E2 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -409,8 +536,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = SubtitleLearn/SubtitleLearn.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = T453S2D6MU;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SubtitleLearn/Info.plist;
@@ -439,8 +568,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = SubtitleLearn/SubtitleLearn.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = T453S2D6MU;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SubtitleLearn/Info.plist;
@@ -532,6 +663,63 @@
 			};
 			name = Release;
 		};
+		D8E542BB307663D100D000E2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = SubtitleBroadcast/SubtitleBroadcast.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = T453S2D6MU;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = SubtitleBroadcast/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = SubtitleBroadcast;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.SubtitleLearn.SubtitleBroadcast;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "SubtitleBroadcast/SubtitleBroadcast-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		D8E542BC307663D100D000E2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = SubtitleBroadcast/SubtitleBroadcast.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = T453S2D6MU;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = SubtitleBroadcast/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = SubtitleBroadcast;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.SubtitleLearn.SubtitleBroadcast;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "SubtitleBroadcast/SubtitleBroadcast-Bridging-Header.h";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -571,6 +759,15 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		D8E542BA307663D100D000E2 /* Build configuration list for PBXNativeTarget "SubtitleBroadcast" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D8E542BB307663D100D000E2 /* Debug */,
+				D8E542BC307663D100D000E2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
@@ -583,6 +780,14 @@
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		D8BCA93F30765AB5001157CE /* Pipify */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D8BCA93E30765AB5001157CE /* XCRemoteSwiftPackageReference "swiftui-pipify" */;
+			productName = Pipify;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = D8D57A77306A1B8D004AF07D /* Project object */;
 }

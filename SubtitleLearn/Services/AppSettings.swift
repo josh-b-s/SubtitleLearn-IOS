@@ -2,8 +2,8 @@ import Foundation
 import Observation
 
 /// Small UserDefaults-backed settings store. The Gemini key is stored in plain
-/// UserDefaults for simplicity — fine for a student project, but move it to
-/// the Keychain before shipping anything real.
+/// UserDefaults for simplicity (fine for a student project, but move it to
+/// the Keychain before shipping anything real).
 @MainActor
 @Observable
 final class AppSettings {

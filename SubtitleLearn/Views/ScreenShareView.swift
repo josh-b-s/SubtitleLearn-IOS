@@ -1,16 +1,22 @@
 import SwiftUI
 import Pipify
 
-/// Screen Share tab. For now it tests PiP with a mock subtitle stream.
+/// Screen Share tab: live subtitles from audio, shown in a Picture in Picture window.
 struct ScreenShareView: View {
-    @StateObject private var subtitles = PipSubtitleModel()
+    @State private var viewModel = ScreenShareViewModel()
     @State private var isPipPresented = false
+    @State private var pickerTrigger = 0
+
+    private let extensionID = BroadcastPickerButton.embeddedExtensionBundleID
+
+    private var isActive: Bool { viewModel.isRunning || viewModel.isWaitingForBroadcast }
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
                     mockMedia
+                    sourcePicker
                     pipButton
                     Text(helpText)
                         .font(.footnote)
@@ -22,14 +28,32 @@ struct ScreenShareView: View {
             .navigationTitle("Screen Share")
         }
         .pipify(isPresented: $isPipPresented) {
-            PipSubtitleView(model: subtitles)
+            PipSubtitleView(model: viewModel.subtitles)
+                .frame(width: PipSubtitleView.pipSize.width, height: PipSubtitleView.pipSize.height)
         }
+        // Closing the PiP window ends listening (and the screen broadcast).
         .onChange(of: isPipPresented) { _, presented in
-            if !presented { subtitles.stop() }
+            if !presented { viewModel.stop() }
+        }
+        // PiP follows the session: opens when it starts, closes when it ends or fails.
+        .onChange(of: viewModel.isRunning) { _, running in
+            isPipPresented = running
+        }
+        .alert("Screen Share", isPresented: errorBinding) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(viewModel.errorMessage ?? "")
         }
     }
 
-    /// Stand-in for the media being watched, with the same subtitle panel the PiP shows.
+    private var errorBinding: Binding<Bool> {
+        Binding(
+            get: { viewModel.errorMessage != nil },
+            set: { if !$0 { viewModel.errorMessage = nil } }
+        )
+    }
+
+    /// Stand-in for the media being watched, with the same panel the PiP shows.
     private var mockMedia: some View {
         ZStack(alignment: .bottom) {
             LinearGradient(
@@ -37,13 +61,15 @@ struct ScreenShareView: View {
                 startPoint: .top,
                 endPoint: .bottom
             )
-            Text("Mock video")
+            Text("Preview")
                 .font(.footnote)
                 .foregroundStyle(.white.opacity(0.5))
                 .frame(maxHeight: .infinity, alignment: .top)
                 .padding(12)
-            PipSubtitleView(model: subtitles)
+            PipSubtitleView(model: viewModel.subtitles)
+                .frame(height: PipSubtitleView.pipSize.height)
                 .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+                .padding(.horizontal, 12)
                 .padding(.bottom, 16)
         }
         .frame(maxWidth: .infinity)
@@ -51,31 +77,65 @@ struct ScreenShareView: View {
         .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
     }
 
+    private var sourcePicker: some View {
+        Picker("Audio source", selection: $viewModel.source) {
+            ForEach(ScreenShareViewModel.Source.allCases) { Text($0.rawValue).tag($0) }
+        }
+        .pickerStyle(.segmented)
+        .disabled(isActive)
+    }
+
     private var pipButton: some View {
         Button {
-            if isPipPresented {
-                isPipPresented = false
+            if isActive {
+                viewModel.stop()
             } else {
-                subtitles.start()
-                isPipPresented = true
+                Task {
+                    await viewModel.start()
+                    if viewModel.isWaitingForBroadcast { pickerTrigger += 1 }
+                }
             }
         } label: {
-            Label(
-                isPipPresented ? "Stop Picture in Picture" : "Start Picture in Picture demo",
-                systemImage: isPipPresented ? "pip.exit" : "pip.enter"
-            )
-            .font(.title3.weight(.semibold))
-            .frame(maxWidth: .infinity, minHeight: 32)
+            Label(buttonTitle, systemImage: isActive ? "stop.fill" : "pip.enter")
+                .font(.title3.weight(.semibold))
+                .frame(maxWidth: .infinity, minHeight: 32)
         }
         .buttonStyle(.borderedProminent)
         .buttonBorderShape(.roundedRectangle(radius: 18))
         .controlSize(.large)
-        .disabled(!PipifyController.isSupported)
+        .tint(isActive ? .red : .accentColor)
+        .disabled(!canStart)
+        .background {
+            BroadcastPickerButton(extensionBundleID: extensionID, trigger: pickerTrigger)
+                .frame(width: 1, height: 1)
+                .opacity(0.011)
+        }
+    }
+
+    private var canStart: Bool {
+        guard PipifyController.isSupported else { return false }
+        return isActive || viewModel.source != .screen || extensionID != nil
+    }
+
+    private var buttonTitle: String {
+        if viewModel.isWaitingForBroadcast { return "Waiting for broadcast (tap to cancel)" }
+        if viewModel.isRunning { return "Stop" }
+        return viewModel.source == .screen ? "Share screen audio" : "Start live subtitles"
     }
 
     private var helpText: String {
-        PipifyController.isSupported
-            ? "Starts a floating window with a mock stream of words. Press Home afterwards to see it stay on top of other apps."
-            : "Picture in Picture isn't supported on this device or simulator."
+        guard PipifyController.isSupported else {
+            return "Picture in Picture isn't supported on this device or simulator."
+        }
+        switch viewModel.source {
+        case .screen:
+            return extensionID == nil
+                ? "The broadcast extension isn't in this build yet. See SETUP.md."
+                : "Tap the button, then \"Start Broadcast\" in the system sheet. Subtitles appear in a floating window for audio from any app, such as a video you play."
+        case .microphone:
+            return "Listens through the microphone, so it hears media playing out loud (not through headphones). Start it, then press Home and play something in Chinese."
+        case .mock:
+            return "Streams sample sentences, no audio needed. Use it to check the PiP window itself."
+        }
     }
 }

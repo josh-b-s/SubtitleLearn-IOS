@@ -22,11 +22,12 @@ struct PipWordCard: View {
                     .font(.system(size: 11))
                     .foregroundStyle(Color.gray)
                     .lineLimit(1)
+                    .minimumScaleFactor(0.8)
             }
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 8)
-        .frame(maxWidth: 120, alignment: .leading)
+        .frame(maxWidth: 92, alignment: .leading)
         .background(Color.white, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
 }
