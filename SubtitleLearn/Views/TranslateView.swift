@@ -64,7 +64,7 @@ struct TranslateView: View {
             }
         }
         .sheet(item: $selectedToken) { token in
-            WordDetailSheet(token: token, isSaved: savedSet.contains(token.text)) {
+            WordDetailSheet(token: token, isSaved: savedSet.contains(token.text), level: savedWord(for: token)?.levelBinding) {
                 toggleSaved(token)
                 selectedToken = nil
             }
@@ -179,6 +179,10 @@ struct TranslateView: View {
             }
             .sensoryFeedback(.selection, trigger: savedWords.count)
         }
+    }
+
+    private func savedWord(for token: WordToken) -> SavedWord? {
+        savedWords.first { $0.word == token.text }
     }
 
     private func toggleSaved(_ token: WordToken) {

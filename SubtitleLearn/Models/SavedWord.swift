@@ -2,8 +2,6 @@ import Foundation
 import SwiftData
 
 /// A vocabulary word the user saved from the Translate screen.
-/// The spaced-repetition fields are unused until Stage 4 but are included now
-/// so the schema doesn't need migrating later.
 @Model
 final class SavedWord {
     @Attribute(.unique) var word: String
@@ -11,11 +9,15 @@ final class SavedWord {
     var meanings: [String]
     var dateAdded: Date
 
-    // Spaced repetition (Stage 4)
+    // Spaced repetition (SM-2)
     var repetitions: Int
     var easeFactor: Double
     var intervalDays: Int
     var dueDate: Date
+
+    // Mastery: levels 1 to 3 are quizzed, 4 is mastered. Defaults let old stores migrate.
+    var level: Int = 1
+    var levelStreak: Int = 0
 
     init(word: String, pinyin: String, meanings: [String], dateAdded: Date = .now) {
         self.word = word

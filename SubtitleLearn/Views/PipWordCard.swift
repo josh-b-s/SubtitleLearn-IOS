@@ -12,12 +12,12 @@ struct PipWordCard: View {
             Text(token.text)
                 .font(.system(size: 22, weight: .bold))
                 .foregroundStyle(Color.black)
-            if !token.pinyin.isEmpty {
+            if !token.pinyin.isEmpty && !token.hidePinyin {
                 Text(token.pinyin)
                     .font(.system(size: 12))
                     .foregroundStyle(Self.blue)
             }
-            if !token.meanings.isEmpty {
+            if !token.meanings.isEmpty && !token.hideMeaning {
                 Text(token.meanings.prefix(2).joined(separator: " · "))
                     .font(.system(size: 11))
                     .foregroundStyle(Color.gray)

@@ -11,6 +11,13 @@ struct WordToken: Identifiable, Hashable {
     let text: String
     let pinyin: String
     let meanings: [String]   // at most 3
+    var hideMeaning = false  // set for words the learner has outgrown
+    var hidePinyin = false
+
+    func reindexed(_ id: Int) -> WordToken {
+        WordToken(id: id, text: text, pinyin: pinyin, meanings: meanings,
+                  hideMeaning: hideMeaning, hidePinyin: hidePinyin)
+    }
 }
 
 /// Bundled zh-en.tsv dictionary plus greedy longest-match segmentation
@@ -97,6 +104,25 @@ struct ChineseDictionary: Sendable {
             i += matched
         }
         return words
+    }
+
+    // MARK: - Sampling
+
+    /// Random all-Han entries with exactly `length` characters, for quiz wrong options.
+    func sample(count: Int, length: Int) -> [(word: String, entry: DictionaryEntry)] {
+        var result: [(word: String, entry: DictionaryEntry)] = []
+        var seen = Set<String>()
+        var attempts = 0
+        while result.count < count, attempts < count * 60 {
+            attempts += 1
+            guard let pair = entries.randomElement(),
+                  pair.key.count == length,
+                  pair.key.allSatisfy(\.isHanCharacter),
+                  seen.insert(pair.key).inserted
+            else { continue }
+            result.append((word: pair.key, entry: pair.value))
+        }
+        return result
     }
 
     // MARK: - Lookup

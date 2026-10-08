@@ -1,13 +1,19 @@
 import SwiftUI
 import Pipify
+import SwiftData
 
 /// Screen Share tab: live subtitles from audio, shown in a Picture in Picture window.
 struct ScreenShareView: View {
+    @Query private var words: [SavedWord]
     @State private var viewModel = ScreenShareViewModel()
     @State private var isPipPresented = false
     @State private var pickerTrigger = 0
 
     private let extensionID = BroadcastPickerButton.embeddedExtensionBundleID
+
+    private var levelsByWord: [String: Int] {
+        Dictionary(words.map { ($0.word, $0.level) }, uniquingKeysWith: { first, _ in first })
+    }
 
     private var isActive: Bool { viewModel.isRunning || viewModel.isWaitingForBroadcast }
 
@@ -30,6 +36,9 @@ struct ScreenShareView: View {
         .pipify(isPresented: $isPipPresented) {
             PipSubtitleView(model: viewModel.subtitles)
                 .frame(width: PipSubtitleView.pipSize.width, height: PipSubtitleView.pipSize.height)
+        }
+        .onChange(of: levelsByWord, initial: true) { _, levels in
+            viewModel.subtitles.levels = levels
         }
         // Closing the PiP window ends listening (and the screen broadcast).
         .onChange(of: isPipPresented) { _, presented in

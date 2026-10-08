@@ -9,9 +9,9 @@
 /* Begin PBXBuildFile section */
 		D847A3663076684D00AB1E13 /* BroadcastShared.swift in Sources */ = {isa = PBXBuildFile; fileRef = D847A3643076684D00AB1E13 /* BroadcastShared.swift */; };
 		D847A3673076684D00AB1E13 /* BroadcastShared.swift in Sources */ = {isa = PBXBuildFile; fileRef = D847A3643076684D00AB1E13 /* BroadcastShared.swift */; };
+		D8BCA94030765AB5001157CE /* Pipify in Frameworks */ = {isa = PBXBuildFile; productRef = D8BCA93F30765AB5001157CE /* Pipify */; };
 		D8E542B1307663D100D000E2 /* ReplayKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8E542B0307663D000D000E2 /* ReplayKit.framework */; };
 		D8E542B8307663D100D000E2 /* SubtitleBroadcast.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = D8E542AE307663D000D000E2 /* SubtitleBroadcast.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		D8BCA94030765AB5001157CE /* Pipify in Frameworks */ = {isa = PBXBuildFile; productRef = D8BCA93F30765AB5001157CE /* Pipify */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */

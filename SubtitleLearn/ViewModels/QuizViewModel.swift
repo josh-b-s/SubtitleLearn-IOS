@@ -1,113 +1,135 @@
 import Foundation
-import SwiftData
 import Observation
 
 enum QuizPhase {
     case idle
     case loading
     case answering
-    case grading
-    case feedback(GradeResult)
-    case finished(reviewed: Int)
+    case feedback(QuizFeedback)
+    case finished(QuizSummary)
     case error(String)
 }
 
 @MainActor
 @Observable
 final class QuizViewModel {
-    private(set) var questions: [QuizQuestion] = []
-    private(set) var currentIndex = 0
     private(set) var phase: QuizPhase = .idle
-    var userAnswer = ""
+    private(set) var note: String?
+
     var selectedChoice: String?
+    var selectedPinyin: String?
+    var selectedMeaning: String?
 
-    var currentQuestion: QuizQuestion? {
-        questions.indices.contains(currentIndex) ? questions[currentIndex] : nil
+    private var queue: [QuizQuestion] = []
+    private var completed = 0
+
+    // First-attempt tallies for the summary.
+    private var attempted = 0
+    private var correctFirstTry = 0
+    private var leveledUp = 0
+    private var mastered = 0
+
+    var currentQuestion: QuizQuestion? { queue.first }
+    var canSubmit: Bool { currentAnswer != nil }
+
+    /// Total stays constant: a miss moves a question to the back, it doesn't add one.
+    var progressText: String { "\(completed + 1) / \(completed + queue.count)" }
+
+    private var currentAnswer: QuizAnswer? {
+        guard let question = currentQuestion else { return nil }
+        switch question.kind {
+        case .pair:
+            guard let pinyin = selectedPinyin, let meaning = selectedMeaning else { return nil }
+            return .pair(pinyin: pinyin, meaning: meaning)
+        case .choice, .cloze:
+            return selectedChoice.map { QuizAnswer.choice($0) }
+        }
     }
-    var progressText: String { "\(min(currentIndex + 1, questions.count)) / \(questions.count)" }
 
-    private var reviewedCount = 0
-
-    /// Picks due words first (or all saved words if none are due yet), generates
-    /// a quiz for them, and starts answering.
-    func start(allWords: [SavedWord], modelContext: ModelContext) async {
+    func start(allWords: [SavedWord]) async {
         guard !allWords.isEmpty else {
             phase = .error("Save some words on the Translate tab first.")
             return
         }
-        let settings = AppSettings.shared
-        guard !settings.geminiAPIKey.isEmpty else {
-            phase = .error("Add a Gemini API key in Settings first.")
+        guard allWords.contains(where: { !$0.isMastered }) else {
+            phase = .error("Every saved word is mastered. Save more words to keep learning.")
             return
         }
 
         phase = .loading
-        let due = allWords.filter(\.isDue)
-        let pool = (due.isEmpty ? allWords : due).shuffled()
-        let picked = Array(pool.prefix(settings.questionsPerQuiz))
-
-        do {
-            let client = GeminiClient(apiKey: settings.geminiAPIKey)
-            let generated = try await QuizGenerator(client: client).makeQuiz(for: picked)
-            guard !generated.isEmpty else {
-                phase = .error("Gemini didn't return any questions. Try again.")
-                return
-            }
-            questions = generated
-            currentIndex = 0
-            reviewedCount = 0
-            userAnswer = ""
-            selectedChoice = nil
-            phase = .answering
-        } catch {
-            phase = .error(error.localizedDescription)
-        }
-    }
-
-    func submit(allWords: [SavedWord], modelContext: ModelContext) async {
-        guard let question = currentQuestion else { return }
-
-        if question.type.isLocallyGradable {
-            let given = (question.type == .multipleChoice ? (selectedChoice ?? "") : userAnswer)
-            let correct = given.trimmingCharacters(in: .whitespacesAndNewlines)
-                .caseInsensitiveCompare(question.answer.trimmingCharacters(in: .whitespacesAndNewlines)) == .orderedSame
-            let result = GradeResult(quality: correct ? 5 : 1, feedback: correct ? "Correct!" : "The answer was \(question.answer).")
-            applyGrade(result, word: question.word, allWords: allWords)
+        let built = await QuizSessionBuilder(allWords: allWords, count: AppSettings.shared.questionsPerQuiz).build()
+        guard !built.questions.isEmpty else {
+            phase = .error("Couldn't build any questions. Try saving a few more words.")
             return
         }
-
-        guard !userAnswer.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
-        phase = .grading
-        do {
-            let client = GeminiClient(apiKey: AppSettings.shared.geminiAPIKey)
-            let result = try await AnswerGrader(client: client).grade(question: question, userAnswer: userAnswer)
-            applyGrade(result, word: question.word, allWords: allWords)
-        } catch {
-            phase = .error(error.localizedDescription)
-        }
+        resetTallies()
+        queue = built.questions
+        note = built.note
+        phase = .answering
     }
 
-    private func applyGrade(_ result: GradeResult, word: String, allWords: [SavedWord]) {
-        if let match = allWords.first(where: { $0.word == word }) {
-            match.review(quality: result.quality)
-            reviewedCount += 1
+    func submit(allWords: [SavedWord]) {
+        guard case .answering = phase, let question = currentQuestion, let answer = currentAnswer else { return }
+        let correct = QuizGrader.isCorrect(question, answer: answer)
+
+        // Only the first attempt counts. Retries just have to be answered.
+        var levelNote: String?
+        if !question.isRetry, let word = allWords.first(where: { $0.word == question.word }) {
+            let before = word.level
+            word.record(correct: correct, questionLevel: question.level)
+            levelNote = Self.levelNote(from: before, to: word.level)
+            tally(correct: correct, before: before, after: word.level)
         }
-        phase = .feedback(result)
+
+        let asked = queue.removeFirst()
+        if correct {
+            completed += 1
+        } else {
+            queue.append(asked.asRetry())
+        }
+        phase = .feedback(QuizFeedback(correct: correct, answerText: QuizGrader.answerText(for: asked), levelNote: levelNote))
     }
 
     func next() {
-        userAnswer = ""
         selectedChoice = nil
-        currentIndex += 1
-        phase = currentIndex < questions.count ? .answering : .finished(reviewed: reviewedCount)
+        selectedPinyin = nil
+        selectedMeaning = nil
+        phase = queue.isEmpty
+            ? .finished(QuizSummary(attempted: attempted, correctFirstTry: correctFirstTry, leveledUp: leveledUp, mastered: mastered))
+            : .answering
     }
 
     func reset() {
-        questions = []
-        currentIndex = 0
-        reviewedCount = 0
-        userAnswer = ""
-        selectedChoice = nil
+        queue = []
+        note = nil
+        resetTallies()
         phase = .idle
+    }
+
+    // MARK: - Helpers
+
+    private func resetTallies() {
+        completed = 0
+        attempted = 0
+        correctFirstTry = 0
+        leveledUp = 0
+        mastered = 0
+    }
+
+    private func tally(correct: Bool, before: Int, after: Int) {
+        attempted += 1
+        if correct { correctFirstTry += 1 }
+        if after > before { leveledUp += 1 }
+        if Mastery.isMastered(after) && !Mastery.isMastered(before) { mastered += 1 }
+    }
+
+    private static func levelNote(from old: Int, to new: Int) -> String? {
+        if new < old { return "Back to level \(new)." }
+        guard new > old else { return nil }
+        switch new {
+        case 2: return "Level 2. Subtitles will now hide its meaning."
+        case 3: return "Level 3. Subtitles will now hide its pinyin too."
+        default: return "Mastered! It won't be quizzed again."
+        }
     }
 }

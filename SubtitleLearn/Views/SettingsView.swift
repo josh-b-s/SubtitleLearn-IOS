@@ -16,6 +16,14 @@ struct SettingsView: View {
                 }
 
                 Section {
+                    Toggle("Hide hints for learned words", isOn: $settings.hideLearnedInPip)
+                } header: {
+                    Text("Subtitles")
+                } footer: {
+                    Text("Words past level 1 lose their meaning in the subtitles, and past level 2 their pinyin too. Look them up in the app if you need a reminder.")
+                }
+
+                Section {
                     SecureField("Gemini API key", text: $apiKeyDraft)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
@@ -24,7 +32,7 @@ struct SettingsView: View {
                 } header: {
                     Text("Quiz")
                 } footer: {
-                    Text("Used to generate quiz questions and grade free-text answers. Get a key at aistudio.google.com/apikey. Stored on-device only.")
+                    Text("Only used to write example sentences for level 3 questions, then cached. Levels 1 and 2 work without a key. Get a key at aistudio.google.com/apikey. Stored on-device only.")
                 }
 
                 Section {

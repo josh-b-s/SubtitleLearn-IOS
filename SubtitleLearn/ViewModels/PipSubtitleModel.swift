@@ -16,6 +16,9 @@ final class PipSubtitleModel: ObservableObject {
 
     @Published private(set) var lines: [PipLine] = []
 
+    /// Saved word levels, set by the screen. Used to hide hints for learned words.
+    var levels: [String: Int] = [:]
+
     private var committed: [PipLine] = []
     private var nextID = 0
 
@@ -26,9 +29,10 @@ final class PipSubtitleModel: ObservableObject {
             lines = committed
             return
         }
-        let indexed = segment.enumerated().map { index, token in
-            WordToken(id: index, text: token.text, pinyin: token.pinyin, meanings: token.meanings)
-        }
+        let shown = AppSettings.shared.hideLearnedInPip
+            ? MasteryRedactor.apply(to: segment, levels: levels)
+            : segment
+        let indexed = shown.enumerated().map { index, token in token.reindexed(index) }
         lines = committed + [PipLine(id: nextID, tokens: indexed)]
         if isFinal {
             committed = trimmed(lines)

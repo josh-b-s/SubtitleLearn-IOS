@@ -4,6 +4,7 @@ import SwiftUI
 struct WordDetailSheet: View {
     let token: WordToken
     let isSaved: Bool
+    var level: Binding<Int>? = nil   // only for saved words
     let onToggleSave: () -> Void
 
     var body: some View {
@@ -38,6 +39,11 @@ struct WordDetailSheet: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.top, 20)
 
+            if let level {
+                MasteryPicker(level: level)
+                    .padding(.top, 20)
+            }
+
             Spacer(minLength: 20)
 
             Button(action: onToggleSave) {
@@ -52,7 +58,7 @@ struct WordDetailSheet: View {
             .padding(.bottom, 8)
         }
         .padding(.horizontal, 24)
-        .presentationDetents([.medium])
+        .presentationDetents(level == nil ? [.medium] : [.medium, .large])
         .presentationDragIndicator(.visible)
         .presentationCornerRadius(32)
     }

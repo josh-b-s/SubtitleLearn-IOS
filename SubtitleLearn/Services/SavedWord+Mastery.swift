@@ -1,0 +1,22 @@
+import Foundation
+
+extension SavedWord {
+    var isMastered: Bool { Mastery.isMastered(level) }
+
+    /// Records one graded answer: SM-2 schedule plus mastery level.
+    /// A question easier than the word's level (a fallback) only affects the schedule.
+    func record(correct: Bool, questionLevel: Int) {
+        review(quality: Mastery.quality(level: questionLevel, correct: correct))
+        guard questionLevel == level else { return }
+
+        let next = Mastery.next(.init(level: level, streak: levelStreak), correct: correct)
+        level = next.level
+        levelStreak = next.streak
+    }
+
+    /// Manual override from the detail sheet. Clears the streak so the new level starts fresh.
+    func setLevel(_ newLevel: Int) {
+        level = min(max(newLevel, 1), Mastery.masteredLevel)
+        levelStreak = 0
+    }
+}
