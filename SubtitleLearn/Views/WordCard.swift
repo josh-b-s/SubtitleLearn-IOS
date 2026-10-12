@@ -10,16 +10,18 @@ struct WordCard: View {
                 .font(.system(size: 32, weight: .bold))
                 .foregroundStyle(.primary)
 
-            if !token.pinyin.isEmpty {
+            if !token.pinyin.isEmpty && !token.hidePinyin {
                 Text(token.pinyin)
                     .font(.title3)
                     .foregroundStyle(Color.accentColor)
             }
 
-            Text(token.meanings.isEmpty ? "No definition" : token.meanings.joined(separator: " · "))
-                .font(.body)
-                .foregroundStyle(.secondary)
-                .lineLimit(2)
+            if !token.hideMeaning {
+                Text(token.meanings.isEmpty ? "No definition" : token.meanings.joined(separator: " · "))
+                    .font(.body)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+            }
         }
         .padding(16)
         .frame(maxWidth: 240, alignment: .leading)

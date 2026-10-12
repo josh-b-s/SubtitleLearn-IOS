@@ -6,11 +6,23 @@ struct TranslateView: View {
     @Query private var savedWords: [SavedWord]
 
     @State private var viewModel = TranslateViewModel()
+    @State private var settings = AppSettings.shared
     @Environment(\.scenePhase) private var scenePhase
     @State private var selectedToken: WordToken?
     @FocusState private var inputFocused: Bool
 
     private var savedSet: Set<String> { Set(savedWords.map(\.word)) }
+
+    private var levelsByWord: [String: Int] {
+        Dictionary(savedWords.map { ($0.word, $0.level) }, uniquingKeysWith: { first, _ in first })
+    }
+
+    /// Cards as shown: learned words lose their hints when the toggle is on.
+    private var displayTokens: [WordToken] {
+        settings.hideLearnedInTranslate
+            ? MasteryRedactor.apply(to: viewModel.tokens, levels: levelsByWord)
+            : viewModel.tokens
+    }
 
     private var speechErrorBinding: Binding<Bool> {
         Binding(
@@ -166,13 +178,21 @@ struct TranslateView: View {
             Text("No Chinese characters found.")
                 .foregroundStyle(.secondary)
         } else if !viewModel.tokens.isEmpty {
-            Text("INTERACTIVE BREAKDOWN")
-                .font(.subheadline.weight(.semibold))
-                .foregroundStyle(.secondary)
-                .padding(.top, 4)
+            HStack {
+                Text("INTERACTIVE BREAKDOWN")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Toggle(isOn: $settings.hideLearnedInTranslate) {
+                    Label("Hide learned", systemImage: "eye.slash")
+                }
+                .toggleStyle(.button)
+                .controlSize(.small)
+            }
+            .padding(.top, 4)
 
             FlowLayout(spacing: 12) {
-                ForEach(viewModel.tokens) { token in
+                ForEach(displayTokens) { token in
                     WordCard(token: token, isSaved: savedSet.contains(token.text))
                         .onTapGesture { selectedToken = token }
                 }

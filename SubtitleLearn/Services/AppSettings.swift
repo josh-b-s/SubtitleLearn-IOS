@@ -24,7 +24,12 @@ final class AppSettings {
         didSet { UserDefaults.standard.set(hideLearnedInPip, forKey: Self.hideLearnedDefaultsKey) }
     }
 
+    var hideLearnedInTranslate: Bool {
+        didSet { UserDefaults.standard.set(hideLearnedInTranslate, forKey: Self.hideTranslateDefaultsKey) }
+    }
+
     private static let hideLearnedDefaultsKey = "hideLearnedInPip"
+    private static let hideTranslateDefaultsKey = "hideLearnedInTranslate"
     private static let onDeviceDefaultsKey = "preferOnDeviceSpeech"
     private static let keyDefaultsKey = "geminiAPIKey"
     private static let countDefaultsKey = "questionsPerQuiz"
@@ -35,5 +40,6 @@ final class AppSettings {
         questionsPerQuiz = saved > 0 ? saved : 8
         preferOnDeviceSpeech = UserDefaults.standard.object(forKey: Self.onDeviceDefaultsKey) as? Bool ?? true
         hideLearnedInPip = UserDefaults.standard.object(forKey: Self.hideLearnedDefaultsKey) as? Bool ?? true
+        hideLearnedInTranslate = UserDefaults.standard.bool(forKey: Self.hideTranslateDefaultsKey)
     }
 }
