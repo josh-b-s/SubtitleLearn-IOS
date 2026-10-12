@@ -44,6 +44,11 @@ struct VocabularyView: View {
 
     private var list: some View {
         List {
+            MasteryFilterBar(selection: $filter)
+                .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
+                .listRowBackground(Color.clear)
+                .listRowSeparator(.hidden)
+
             ForEach(filtered) { word in
                 Button { selected = word } label: { VocabularyRow(word: word) }
                     .buttonStyle(.plain)
@@ -52,11 +57,6 @@ struct VocabularyView: View {
                 let current = filtered
                 offsets.forEach { modelContext.delete(current[$0]) }
             }
-        }
-        .safeAreaInset(edge: .top, spacing: 0) {
-            MasteryFilterBar(selection: $filter)
-                .padding(.vertical, 8)
-                .background(.bar)
         }
         .overlay {
             if filtered.isEmpty {

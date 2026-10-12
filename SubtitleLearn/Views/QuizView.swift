@@ -4,6 +4,7 @@ import SwiftData
 struct QuizView: View {
     @Query private var words: [SavedWord]
     @State private var viewModel = QuizViewModel()
+    @State private var confirmingQuit = false
 
     private var activeCount: Int { words.filter { !$0.isMastered }.count }
 
@@ -27,9 +28,20 @@ struct QuizView: View {
             }
             .navigationTitle("Quiz")
             .toolbar {
+                if viewModel.isInProgress {
+                    ToolbarItem(placement: .topBarLeading) {
+                        Button("Quit") { confirmingQuit = true }
+                    }
+                }
                 if case .answering = viewModel.phase {
                     ToolbarItem(placement: .topBarTrailing) { Text(viewModel.progressText).foregroundStyle(.secondary) }
                 }
+            }
+            .confirmationDialog("Quit this quiz?", isPresented: $confirmingQuit, titleVisibility: .visible) {
+                Button("Quit Quiz", role: .destructive) { viewModel.reset() }
+                Button("Keep Going", role: .cancel) {}
+            } message: {
+                Text("Answers you've already submitted are saved.")
             }
         }
     }

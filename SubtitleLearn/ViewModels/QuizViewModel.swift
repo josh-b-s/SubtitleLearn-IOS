@@ -32,6 +32,14 @@ final class QuizViewModel {
     var currentQuestion: QuizQuestion? { queue.first }
     var canSubmit: Bool { currentAnswer != nil }
 
+    /// True while a quiz is underway (question or feedback showing).
+    var isInProgress: Bool {
+        switch phase {
+        case .answering, .feedback: true
+        default: false
+        }
+    }
+
     /// Total stays constant: a miss moves a question to the back, it doesn't add one.
     var progressText: String { "\(completed + 1) / \(completed + queue.count)" }
 
@@ -101,6 +109,9 @@ final class QuizViewModel {
 
     func reset() {
         queue = []
+        selectedChoice = nil
+        selectedPinyin = nil
+        selectedMeaning = nil
         note = nil
         resetTallies()
         phase = .idle

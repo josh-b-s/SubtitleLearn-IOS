@@ -12,7 +12,7 @@ struct FlowLayout: Layout {
         var usedWidth: CGFloat = 0
 
         for subview in subviews {
-            let size = subview.sizeThatFits(.unspecified)
+            let size = measure(subview, width: maxWidth)
             if x > 0 && x + size.width > maxWidth {
                 x = 0
                 y += rowHeight + spacing
@@ -31,7 +31,7 @@ struct FlowLayout: Layout {
         var rowHeight: CGFloat = 0
 
         for subview in subviews {
-            let size = subview.sizeThatFits(.unspecified)
+            let size = measure(subview, width: bounds.width)
             if x > bounds.minX && x + size.width > bounds.maxX {
                 x = bounds.minX
                 y += rowHeight + spacing
@@ -41,5 +41,13 @@ struct FlowLayout: Layout {
             x += size.width + spacing
             rowHeight = max(rowHeight, size.height)
         }
+    }
+
+    /// Natural width first, then height at that width so wrapped text counts.
+    private func measure(_ subview: LayoutSubview, width: CGFloat) -> CGSize {
+        let ideal = subview.sizeThatFits(.unspecified)
+        let w = min(ideal.width, width)
+        let h = subview.sizeThatFits(ProposedViewSize(width: w, height: nil)).height
+        return CGSize(width: w, height: h)
     }
 }
