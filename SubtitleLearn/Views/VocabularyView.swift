@@ -21,15 +21,11 @@ struct VocabularyView: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                VocabularyShortcuts(
-                    onDictionary: { route = .dictionary },
-                    onAddKnown: { route = .addKnown }
-                )
                 if words.isEmpty {
                     ContentUnavailableView(
                         "No saved words yet",
                         systemImage: "bookmark",
-                        description: Text("Tap a word on the Translate tab, or use the buttons above to add one.")
+                        description: Text("Tap a word on the Translate tab, or tap + to add a word you already know.")
                     )
                     .frame(maxHeight: .infinity)
                 } else {
@@ -44,7 +40,15 @@ struct VocabularyView: View {
             }
             .navigationTitle("Vocabulary")
             .toolbar {
-                if !words.isEmpty { ToolbarItem(placement: .topBarTrailing) { EditButton() } }
+                if !words.isEmpty { ToolbarItem(placement: .topBarLeading) { EditButton() } }
+                ToolbarItemGroup(placement: .topBarTrailing) {
+                    Button { route = .dictionary } label: {
+                        Label("Dictionary", systemImage: "character.book.closed")
+                    }
+                    Button { route = .addKnown } label: {
+                        Label("Add known word", systemImage: "plus")
+                    }
+                }
             }
             .searchable(text: $query, prompt: "Search vocabulary…")
         }
