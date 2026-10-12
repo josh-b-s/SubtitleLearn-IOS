@@ -2,6 +2,10 @@ import SwiftUI
 import SwiftData
 
 struct QuizView: View {
+    /// Words handed over by the session summary. Starts a quiz on just these, then clears.
+    @Binding var pendingReview: [String]?
+
+    @Environment(\.modelContext) private var modelContext
     @Query private var words: [SavedWord]
     @State private var viewModel = QuizViewModel()
     @State private var confirmingQuit = false
@@ -37,6 +41,7 @@ struct QuizView: View {
                     ToolbarItem(placement: .topBarTrailing) { Text(viewModel.progressText).foregroundStyle(.secondary) }
                 }
             }
+            .task(id: pendingReview) { await startPendingReview() }
             .confirmationDialog("Quit this quiz?", isPresented: $confirmingQuit, titleVisibility: .visible) {
                 Button("Quit Quiz", role: .destructive) { viewModel.reset() }
                 Button("Keep Going", role: .cancel) {}
@@ -44,6 +49,15 @@ struct QuizView: View {
                 Text("Answers you've already submitted are saved.")
             }
         }
+    }
+
+    private func startPendingReview() async {
+        guard let list = pendingReview else { return }
+        pendingReview = nil
+        viewModel.reset()
+        await Task.yield()   // let freshly saved words land in the store
+        let all = (try? modelContext.fetch(FetchDescriptor<SavedWord>())) ?? words
+        Task { await viewModel.start(allWords: all, focus: Set(list)) }
     }
 
     private var startPrompt: some View {

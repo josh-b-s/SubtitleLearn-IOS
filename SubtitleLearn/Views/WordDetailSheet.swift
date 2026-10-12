@@ -7,6 +7,8 @@ struct WordDetailSheet: View {
     var level: Binding<Int>? = nil   // only for saved words
     let onToggleSave: () -> Void
 
+    @State private var glosses: [CharGloss] = []
+
     var body: some View {
         VStack(spacing: 0) {
             VStack(spacing: 6) {
@@ -23,28 +25,20 @@ struct WordDetailSheet: View {
 
             Divider()
 
-            VStack(alignment: .leading, spacing: 8) {
-                Text("MEANINGS")
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(.secondary)
-
-                if token.meanings.isEmpty {
-                    Text("No definition").foregroundStyle(.secondary)
-                } else {
-                    ForEach(Array(token.meanings.enumerated()), id: \.offset) { index, meaning in
-                        Text("\(index + 1). \(meaning)").font(.title3)
+            ScrollView {
+                VStack(alignment: .leading, spacing: 20) {
+                    meanings
+                    if !glosses.isEmpty {
+                        CharacterBreakdown(glosses: glosses)
+                    }
+                    if let level {
+                        MasteryPicker(level: level)
                     }
                 }
+                .padding(.top, 20)
+                .padding(.bottom, 12)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.top, 20)
-
-            if let level {
-                MasteryPicker(level: level)
-                    .padding(.top, 20)
-            }
-
-            Spacer(minLength: 20)
+            .scrollBounceBehavior(.basedOnSize)
 
             Button(action: onToggleSave) {
                 Text(isSaved ? "Remove from Vocabulary" : "Save to Vocabulary")
@@ -58,8 +52,28 @@ struct WordDetailSheet: View {
             .padding(.bottom, 8)
         }
         .padding(.horizontal, 24)
+        .task(id: token.text) {
+            glosses = await DictionaryLoader.shared.value?.breakdown(for: token.text) ?? []
+        }
         .presentationDetents(level == nil ? [.medium] : [.medium, .large])
         .presentationDragIndicator(.visible)
         .presentationCornerRadius(32)
+    }
+
+    private var meanings: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("MEANINGS")
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(.secondary)
+
+            if token.meanings.isEmpty {
+                Text("No definition").foregroundStyle(.secondary)
+            } else {
+                ForEach(Array(token.meanings.enumerated()), id: \.offset) { index, meaning in
+                    Text("\(index + 1). \(meaning)").font(.title3)
+                }
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }

@@ -54,7 +54,8 @@ final class QuizViewModel {
         }
     }
 
-    func start(allWords: [SavedWord]) async {
+    /// `focus` limits the quiz to those words (used by the session summary review).
+    func start(allWords: [SavedWord], focus: Set<String>? = nil) async {
         guard !allWords.isEmpty else {
             phase = .error("Save some words on the Translate tab first.")
             return
@@ -65,7 +66,7 @@ final class QuizViewModel {
         }
 
         phase = .loading
-        let built = await QuizSessionBuilder(allWords: allWords, count: AppSettings.shared.questionsPerQuiz).build()
+        let built = await QuizSessionBuilder(allWords: allWords, count: AppSettings.shared.questionsPerQuiz, focus: focus).build()
         guard !built.questions.isEmpty else {
             phase = .error("Couldn't build any questions. Try saving a few more words.")
             return

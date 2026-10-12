@@ -16,11 +16,14 @@ final class ScreenShareViewModel {
     var errorMessage: String?
     private(set) var isRunning = false
     private(set) var isWaitingForBroadcast = false
+    /// Set when a session ends with words heard. The view shows the summary, then clears it.
+    private(set) var endedSession: SessionResult?
 
     let subtitles = PipSubtitleModel()
     private let transcriber = SpeechTranscriber()
     private let mock = MockSubtitleFeeder()
     private let receiver = BroadcastAudioReceiver()
+    private let tracker = SessionWordTracker()
     @ObservationIgnored private var dictionary: ChineseDictionary?
     @ObservationIgnored private var runID = UUID()
     @ObservationIgnored private var isStarting = false
@@ -37,6 +40,7 @@ final class ScreenShareViewModel {
         }
         self.dictionary = dictionary
         subtitles.clear()
+        tracker.reset()
 
         switch source {
         case .mock:
@@ -52,6 +56,10 @@ final class ScreenShareViewModel {
     func stop() {
         guard isRunning || isWaitingForBroadcast else { return }
         let wasScreen = source == .screen
+        tracker.flush()
+        let heard = tracker.entries
+        tracker.reset()
+        if !heard.isEmpty { endedSession = SessionResult(entries: heard) }
         runID = UUID()
         transcriber.cancel()
         mock.stop()
@@ -60,6 +68,8 @@ final class ScreenShareViewModel {
         isWaitingForBroadcast = false
         isRunning = false
     }
+
+    func clearEndedSession() { endedSession = nil }
 
     // MARK: - Microphone
 
@@ -138,7 +148,9 @@ final class ScreenShareViewModel {
 
     private func handle(_ text: String, isFinal: Bool, run: UUID) {
         guard run == runID, let dictionary else { return }
-        subtitles.update(segment: dictionary.tokens(for: text), isFinal: isFinal)
+        let tokens = dictionary.tokens(for: text)
+        tracker.update(tokens, isFinal: isFinal)
+        subtitles.update(segment: tokens, isFinal: isFinal)
     }
 
     private func handleFailure(_ error: Error, run: UUID) {

@@ -127,6 +127,8 @@ struct ChineseDictionary: Sendable {
 
     // MARK: - Lookup
 
+    func entry(for word: String) -> DictionaryEntry? { entries[word] }
+
     func tokens(for text: String) -> [WordToken] {
         segment(text).enumerated().map { index, word in
             if let entry = entries[word] {

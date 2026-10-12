@@ -2,12 +2,16 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var selection: Tab = .translate
+    @State private var pendingReview: [String]?
 
     enum Tab { case screenShare, translate, vocabulary, quiz, settings }
 
     var body: some View {
         TabView(selection: $selection) {
-            ScreenShareView()
+            ScreenShareView(onReview: { words in
+                pendingReview = words
+                selection = .quiz
+            })
                 .tabItem { Label("Screen Share", systemImage: "airplayvideo") }
                 .tag(Tab.screenShare)
 
@@ -19,7 +23,7 @@ struct ContentView: View {
                 .tabItem { Label("Vocabulary", systemImage: "bookmark") }
                 .tag(Tab.vocabulary)
 
-            QuizView()
+            QuizView(pendingReview: $pendingReview)
                 .tabItem { Label("Quiz", systemImage: "brain") }
                 .tag(Tab.quiz)
 

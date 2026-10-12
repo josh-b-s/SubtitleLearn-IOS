@@ -6,6 +6,7 @@ import Foundation
 struct QuizSessionBuilder {
     let allWords: [SavedWord]
     let count: Int
+    var focus: Set<String>? = nil
 
     struct Result {
         var questions: [QuizQuestion]
@@ -14,9 +15,12 @@ struct QuizSessionBuilder {
 
     func build() async -> Result {
         // Mastered words are never quizzed. Due words first, otherwise any active word.
-        let pool = allWords.filter { !$0.isMastered }
+        var pool = allWords.filter { !$0.isMastered }
+        if let focus { pool = pool.filter { focus.contains($0.word) } }
         let due = pool.filter(\.isDue)
-        let chosen = Array((due.isEmpty ? pool : due).shuffled().prefix(count))
+        // A focused review asks about all its words, not just the due ones.
+        let source = (focus != nil || due.isEmpty) ? pool : due
+        let chosen = Array(source.shuffled().prefix(count))
 
         let dictionary = await DictionaryLoader.shared.value
         let picker = DistractorPicker(

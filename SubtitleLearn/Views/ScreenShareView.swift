@@ -4,7 +4,12 @@ import SwiftData
 
 /// Screen Share tab: live subtitles from audio, shown in a Picture in Picture window.
 struct ScreenShareView: View {
+    /// Called with the words to quiz when the user taps Review on the session summary.
+    let onReview: ([String]) -> Void
+
+    @Environment(\.modelContext) private var modelContext
     @Query private var words: [SavedWord]
+    @State private var summary: SessionSummary?
     @State private var viewModel = ScreenShareViewModel()
     @State private var isPipPresented = false
     @State private var pickerTrigger = 0
@@ -48,11 +53,25 @@ struct ScreenShareView: View {
         .onChange(of: viewModel.isRunning) { _, running in
             isPipPresented = running
         }
+        .onChange(of: viewModel.endedSession) { _, session in
+            guard let session else { return }
+            summary = SessionSummaryBuilder.build(from: session.entries, saved: words)
+            viewModel.clearEndedSession()
+        }
+        .sheet(item: $summary) { item in
+            SessionSummaryView(summary: item, onReview: { startReview(item) }, onDone: { summary = nil })
+        }
         .alert("Screen Share", isPresented: errorBinding) {
             Button("OK", role: .cancel) {}
         } message: {
             Text(viewModel.errorMessage ?? "")
         }
+    }
+
+    private func startReview(_ item: SessionSummary) {
+        SessionReviewSaver.saveUnsaved(from: item, into: modelContext)
+        summary = nil
+        onReview(item.topWords.map(\.token.text))
     }
 
     private var errorBinding: Binding<Bool> {
