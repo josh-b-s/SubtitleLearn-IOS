@@ -1,6 +1,6 @@
 import Foundation
 
-struct DictionaryEntry: Sendable {
+struct DictionaryEntry: Sendable, Hashable, Codable {
     let pinyin: String
     let meanings: [String]
 }
@@ -24,11 +24,26 @@ struct WordToken: Identifiable, Hashable {
 /// (same approach as the Android version's Dictionary.segment).
 struct ChineseDictionary: Sendable {
     private let entries: [String: DictionaryEntry]
+    private let custom: [String: DictionaryEntry]   // user-added words, win over bundled ones
     private let maxWordLength = 6
     static let maxMeanings = 3
 
-    init(entries: [String: DictionaryEntry]) {
+    init(entries: [String: DictionaryEntry], custom: [String: DictionaryEntry] = [:]) {
         self.entries = entries
+        self.custom = custom
+    }
+
+    /// Same bundled words with the user's custom words layered on top. Cheap, shares the big table.
+    func withCustom(_ custom: [String: DictionaryEntry]) -> ChineseDictionary {
+        ChineseDictionary(entries: entries, custom: custom)
+    }
+
+    private func lookup(_ word: String) -> DictionaryEntry? { custom[word] ?? entries[word] }
+
+    /// Visits every word, custom ones first. `isCustom` is true for user-added words.
+    func forEachEntry(_ body: (_ word: String, _ entry: DictionaryEntry, _ isCustom: Bool) -> Void) {
+        for (word, entry) in custom { body(word, entry, true) }
+        for (word, entry) in entries where custom[word] == nil { body(word, entry, false) }
     }
 
     /// Loads Resources/zh-en.tsv. Each line: word <TAB> meanings (slash separated) <TAB> pinyin
@@ -94,7 +109,7 @@ struct ChineseDictionary: Sendable {
             if limit >= 2 {
                 for length in stride(from: limit, through: 2, by: -1) {
                     let slice = chars[i ..< i + length]
-                    if slice.allSatisfy(\.isHanCharacter), entries[String(slice)] != nil {
+                    if slice.allSatisfy(\.isHanCharacter), lookup(String(slice)) != nil {
                         matched = length
                         break
                     }
@@ -127,11 +142,11 @@ struct ChineseDictionary: Sendable {
 
     // MARK: - Lookup
 
-    func entry(for word: String) -> DictionaryEntry? { entries[word] }
+    func entry(for word: String) -> DictionaryEntry? { lookup(word) }
 
     func tokens(for text: String) -> [WordToken] {
         segment(text).enumerated().map { index, word in
-            if let entry = entries[word] {
+            if let entry = lookup(word) {
                 return WordToken(id: index, text: word, pinyin: entry.pinyin, meanings: entry.meanings)
             }
             // Not in the dictionary: still give pinyin using the system transliterator.
@@ -139,7 +154,7 @@ struct ChineseDictionary: Sendable {
         }
     }
 
-    private static func fallbackPinyin(_ word: String) -> String {
+    static func fallbackPinyin(_ word: String) -> String {
         (word.applyingTransform(.mandarinToLatin, reverse: false) ?? "")
             .replacingOccurrences(of: " ", with: "")
     }

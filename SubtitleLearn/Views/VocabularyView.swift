@@ -8,6 +8,9 @@ struct VocabularyView: View {
     @State private var query = ""
     @State private var filter: MasteryStatus?
     @State private var selected: SavedWord?
+    @State private var route: Route?
+
+    private enum Route: Hashable { case dictionary, addKnown }
 
     private var filtered: [SavedWord] {
         words.filter { word in
@@ -17,15 +20,26 @@ struct VocabularyView: View {
 
     var body: some View {
         NavigationStack {
-            Group {
+            VStack(spacing: 0) {
+                VocabularyShortcuts(
+                    onDictionary: { route = .dictionary },
+                    onAddKnown: { route = .addKnown }
+                )
                 if words.isEmpty {
                     ContentUnavailableView(
                         "No saved words yet",
                         systemImage: "bookmark",
-                        description: Text("Tap a word on the Translate tab to save it here.")
+                        description: Text("Tap a word on the Translate tab, or use the buttons above to add one.")
                     )
+                    .frame(maxHeight: .infinity)
                 } else {
                     list
+                }
+            }
+            .navigationDestination(item: $route) { route in
+                switch route {
+                case .dictionary: DictionaryView()
+                case .addKnown: AddKnownWordView()
                 }
             }
             .navigationTitle("Vocabulary")

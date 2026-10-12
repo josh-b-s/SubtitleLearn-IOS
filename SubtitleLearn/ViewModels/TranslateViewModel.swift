@@ -27,7 +27,7 @@ final class TranslateViewModel {
     // MARK: - Dictionary
 
     func loadDictionary() async {
-        guard dictionary == nil else { return }
+        // Reloaded on every appear so words added in the Dictionary screen show up.
         let loaded = await DictionaryLoader.shared.value
         dictionary = loaded
         isDictionaryReady = loaded != nil
