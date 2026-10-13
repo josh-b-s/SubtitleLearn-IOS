@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		D847A3663076684D00AB1E13 /* BroadcastShared.swift in Sources */ = {isa = PBXBuildFile; fileRef = D847A3643076684D00AB1E13 /* BroadcastShared.swift */; };
 		D847A3673076684D00AB1E13 /* BroadcastShared.swift in Sources */ = {isa = PBXBuildFile; fileRef = D847A3643076684D00AB1E13 /* BroadcastShared.swift */; };
-		D8BCA94030765AB5001157CE /* Pipify in Frameworks */ = {isa = PBXBuildFile; productRef = D8BCA93F30765AB5001157CE /* Pipify */; };
 		D8E542B1307663D100D000E2 /* ReplayKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8E542B0307663D000D000E2 /* ReplayKit.framework */; };
 		D8E542B8307663D100D000E2 /* SubtitleBroadcast.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = D8E542AE307663D000D000E2 /* SubtitleBroadcast.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
@@ -112,7 +111,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D8BCA94030765AB5001157CE /* Pipify in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -203,7 +201,6 @@
 			);
 			name = SubtitleLearn;
 			packageProductDependencies = (
-				D8BCA93F30765AB5001157CE /* Pipify */,
 			);
 			productName = SubtitleLearn;
 			productReference = D8D57A7F306A1B8D004AF07D /* SubtitleLearn.app */;
@@ -314,7 +311,6 @@
 			mainGroup = D8D57A76306A1B8D004AF07D;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				D8BCA93E30765AB5001157CE /* XCRemoteSwiftPackageReference "swiftui-pipify" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = D8D57A80306A1B8D004AF07D /* Products */;
@@ -769,25 +765,6 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
-
-/* Begin XCRemoteSwiftPackageReference section */
-		D8BCA93E30765AB5001157CE /* XCRemoteSwiftPackageReference "swiftui-pipify" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/getsidetrack/swiftui-pipify.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.5.0;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
-
-/* Begin XCSwiftPackageProductDependency section */
-		D8BCA93F30765AB5001157CE /* Pipify */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = D8BCA93E30765AB5001157CE /* XCRemoteSwiftPackageReference "swiftui-pipify" */;
-			productName = Pipify;
-		};
-/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = D8D57A77306A1B8D004AF07D /* Project object */;
 }
