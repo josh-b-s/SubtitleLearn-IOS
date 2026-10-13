@@ -24,6 +24,7 @@ final class ScreenShareViewModel {
     private let mock = MockSubtitleFeeder()
     private let receiver = BroadcastAudioReceiver()
     private let tracker = SessionWordTracker()
+    private let clipRecorder = AudioClipRecorder()
     @ObservationIgnored private var dictionary: ChineseDictionary?
     @ObservationIgnored private var runID = UUID()
     @ObservationIgnored private var isStarting = false
@@ -41,6 +42,7 @@ final class ScreenShareViewModel {
         self.dictionary = dictionary
         subtitles.clear()
         tracker.reset()
+        clipRecorder.reset()
 
         switch source {
         case .mock:
@@ -59,7 +61,8 @@ final class ScreenShareViewModel {
         tracker.flush()
         let heard = tracker.entries
         tracker.reset()
-        if !heard.isEmpty { endedSession = SessionResult(entries: heard) }
+        if !heard.isEmpty { endedSession = SessionResult(entries: heard, clips: clipRecorder.clips) }
+        clipRecorder.reset()
         runID = UUID()
         transcriber.cancel()
         mock.stop()
@@ -115,7 +118,10 @@ final class ScreenShareViewModel {
         isWaitingForBroadcast = true
         receiver.start(
             onStarted: { [weak self] in self?.broadcastDidStart() },
-            onBuffer: { [weak self] buffer in self?.transcriber.appendExternal(buffer) },
+            onBuffer: { [weak self] buffer in
+                self?.clipRecorder.append(buffer)
+                self?.transcriber.appendExternal(buffer)
+            },
             onEnded: { [weak self] in self?.stop() }
         )
     }
@@ -150,6 +156,7 @@ final class ScreenShareViewModel {
         guard run == runID, let dictionary else { return }
         let tokens = dictionary.tokens(for: text)
         tracker.update(tokens, isFinal: isFinal)
+        clipRecorder.captureIfAbsent(tokens.filter { !$0.meanings.isEmpty }.map(\.text))
         subtitles.update(segment: tokens, isFinal: isFinal)
     }
 

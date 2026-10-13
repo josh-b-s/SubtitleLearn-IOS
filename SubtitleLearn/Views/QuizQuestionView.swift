@@ -11,11 +11,20 @@ struct QuizQuestionView: View {
         VStack(alignment: .leading, spacing: 20) {
             header
             switch question.kind {
-            case .choice(let q): ChoiceQuestionView(question: q, selection: $selectedChoice)
+            case .choice(let q):
+                ChoiceQuestionView(question: q, selection: $selectedChoice)
+                if hasClip(for: q) { ReplayClipButton(word: question.word) }
             case .pair(let q): PairQuestionView(question: q, pinyin: $selectedPinyin, meaning: $selectedMeaning)
             case .cloze(let q): ClozeQuestionView(question: q, selection: $selectedChoice)
             }
         }
+    }
+
+    /// Only level 1 words keep clips, and only when hearing the word doesn't give away the answer.
+    private func hasClip(for choice: ChoiceQuestion) -> Bool {
+        question.level == 1
+            && choice.direction == .chineseToEnglish
+            && AudioClipStore.hasClip(for: question.word)
     }
 
     private var header: some View {

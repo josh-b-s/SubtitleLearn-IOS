@@ -56,6 +56,7 @@ struct ScreenShareView: View {
         .onChange(of: viewModel.endedSession) { _, session in
             guard let session else { return }
             summary = SessionSummaryBuilder.build(from: session.entries, saved: words)
+            if let summary { SessionClipSaver.save(session, summary: summary, saved: words) }
             viewModel.clearEndedSession()
         }
         .sheet(item: $summary) { item in
