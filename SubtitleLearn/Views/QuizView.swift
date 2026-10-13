@@ -32,6 +32,12 @@ struct QuizView: View {
             }
             .navigationTitle("Quiz")
             .toolbar {
+                if !viewModel.isInProgress {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        NavigationLink { StatsView() } label: { Image(systemName: "chart.bar.xaxis") }
+                            .accessibilityLabel("Stats")
+                    }
+                }
                 if viewModel.isInProgress {
                     ToolbarItem(placement: .topBarLeading) {
                         Button("Quit") { confirmingQuit = true }
@@ -117,7 +123,7 @@ struct QuizView: View {
                     .id(question.id)
 
                     Button {
-                        viewModel.submit(allWords: words)
+                        viewModel.submit(allWords: words, context: modelContext)
                     } label: {
                         Text("Submit").frame(maxWidth: .infinity)
                     }

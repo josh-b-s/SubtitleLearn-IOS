@@ -1,5 +1,6 @@
 import Foundation
 import Observation
+import SwiftData
 
 enum QuizPhase {
     case idle
@@ -77,7 +78,7 @@ final class QuizViewModel {
         phase = .answering
     }
 
-    func submit(allWords: [SavedWord]) {
+    func submit(allWords: [SavedWord], context: ModelContext) {
         guard case .answering = phase, let question = currentQuestion, let answer = currentAnswer else { return }
         let correct = QuizGrader.isCorrect(question, answer: answer)
 
@@ -86,6 +87,7 @@ final class QuizViewModel {
         if !question.isRetry, let word = allWords.first(where: { $0.word == question.word }) {
             let before = word.level
             word.record(correct: correct, questionLevel: question.level)
+            context.insert(ReviewLog(word: word.word, correct: correct))
             levelNote = Self.levelNote(from: before, to: word.level)
             tally(correct: correct, before: before, after: word.level)
         }

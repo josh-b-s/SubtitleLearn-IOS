@@ -7,6 +7,6 @@ struct SubtitleLearnApp: App {
         WindowGroup {
             ContentView()
         }
-        .modelContainer(for: SavedWord.self)
+        .modelContainer(for: [SavedWord.self, ReviewLog.self])
     }
 }
