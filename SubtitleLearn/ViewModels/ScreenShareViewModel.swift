@@ -19,6 +19,9 @@ final class ScreenShareViewModel {
     /// Set when a session ends with words heard. The view shows the summary, then clears it.
     private(set) var endedSession: SessionResult?
 
+    /// Longest unbroken speech kept in one subtitle. Longer is closed off and a new one starts.
+    private static let maxSegmentCharacters = 40
+
     let subtitles = PipSubtitleModel()
     private let transcriber = SpeechTranscriber()
     private let mock = MockSubtitleFeeder()
@@ -82,6 +85,7 @@ final class ScreenShareViewModel {
             let run = UUID()
             runID = run
             transcriber.preferOnDevice = AppSettings.shared.preferOnDeviceSpeech
+            transcriber.maxSegmentCharacters = Self.maxSegmentCharacters
             // Keep the media's audio playing normally while we listen to it.
             transcriber.sessionMode = .default
             transcriber.sessionOptions = [.mixWithOthers, .defaultToSpeaker]
@@ -131,6 +135,7 @@ final class ScreenShareViewModel {
         let run = UUID()
         runID = run
         transcriber.preferOnDevice = AppSettings.shared.preferOnDeviceSpeech
+        transcriber.maxSegmentCharacters = Self.maxSegmentCharacters
         do {
             try transcriber.startExternal(
                 continuous: true,

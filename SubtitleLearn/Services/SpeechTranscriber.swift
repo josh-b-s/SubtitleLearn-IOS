@@ -56,6 +56,10 @@ final class SpeechTranscriber: @unchecked Sendable {
     var sessionMode: AVAudioSession.Mode = .measurement
     var sessionOptions: AVAudioSession.CategoryOptions = [.duckOthers, .defaultToSpeaker]
 
+    /// Closes an utterance that grows past this many characters and starts a fresh recognition
+    /// task. Without it, speech with no pauses makes every update slower. Off when nil.
+    var maxSegmentCharacters: Int?
+
     var usesOnDevice: Bool { preferOnDevice && (recognizer?.supportsOnDeviceRecognition ?? false) }
 
     // MARK: - Permissions
@@ -222,7 +226,13 @@ final class SpeechTranscriber: @unchecked Sendable {
         guard isCurrent(serial) else { return }
 
         if let result {
-            onUpdate?(result.bestTranscription.formattedString, result.isFinal)
+            let text = result.bestTranscription.formattedString
+            let overlong = !result.isFinal && continuous && running && text.count > (maxSegmentCharacters ?? .max)
+            onUpdate?(text, result.isFinal || overlong)
+            if overlong {
+                beginTask()
+                return
+            }
         }
         let ended = (result?.isFinal ?? false) || error != nil
         guard ended else { return }

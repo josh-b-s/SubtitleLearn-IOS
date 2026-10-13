@@ -1,5 +1,4 @@
 import SwiftUI
-import Pipify
 import SwiftData
 
 /// Screen Share tab: live subtitles from audio, shown in a Picture in Picture window.
@@ -11,7 +10,7 @@ struct ScreenShareView: View {
     @Query private var words: [SavedWord]
     @State private var summary: SessionSummary?
     @State private var viewModel = ScreenShareViewModel()
-    @State private var isPipPresented = false
+    @StateObject private var pip = PipController()
     @State private var pickerTrigger = 0
 
     private let extensionID = BroadcastPickerButton.embeddedExtensionBundleID
@@ -29,6 +28,7 @@ struct ScreenShareView: View {
                     mockMedia
                     sourcePicker
                     pipButton
+                    if viewModel.isRunning && !pip.isActive { showPipButton }
                     Text(helpText)
                         .font(.footnote)
                         .foregroundStyle(.secondary)
@@ -38,20 +38,20 @@ struct ScreenShareView: View {
             .background(Color(.systemGroupedBackground))
             .navigationTitle("Screen Share")
         }
-        .pipify(isPresented: $isPipPresented) {
-            PipSubtitleView(model: viewModel.subtitles)
-                .frame(width: PipSubtitleView.pipSize.width, height: PipSubtitleView.pipSize.height)
+        .overlay { PipLayerHost(layer: pip.displayLayer) }
+        .onAppear {
+            pip.setContent(
+                PipSubtitleView(model: viewModel.subtitles)
+                    .frame(width: PipSubtitleView.pipSize.width, height: PipSubtitleView.pipSize.height)
+            )
         }
         .onChange(of: levelsByWord, initial: true) { _, levels in
             viewModel.subtitles.levels = levels
         }
-        // Closing the PiP window ends listening (and the screen broadcast).
-        .onChange(of: isPipPresented) { _, presented in
-            if !presented { viewModel.stop() }
-        }
         // PiP follows the session: opens when it starts, closes when it ends or fails.
+        // Closing the window by hand leaves the session running.
         .onChange(of: viewModel.isRunning) { _, running in
-            isPipPresented = running
+            if running { pip.present() } else { pip.stop() }
         }
         .onChange(of: viewModel.endedSession) { _, session in
             guard let session else { return }
@@ -141,8 +141,18 @@ struct ScreenShareView: View {
         }
     }
 
+    private var showPipButton: some View {
+        Button { pip.present() } label: {
+            Label("Show PiP", systemImage: "pip.enter")
+                .frame(maxWidth: .infinity, minHeight: 28)
+        }
+        .buttonStyle(.bordered)
+        .buttonBorderShape(.roundedRectangle(radius: 18))
+        .controlSize(.large)
+    }
+
     private var canStart: Bool {
-        guard PipifyController.isSupported else { return false }
+        guard PipController.isSupported else { return false }
         return isActive || viewModel.source != .screen || extensionID != nil
     }
 
@@ -153,7 +163,7 @@ struct ScreenShareView: View {
     }
 
     private var helpText: String {
-        guard PipifyController.isSupported else {
+        guard PipController.isSupported else {
             return "Picture in Picture isn't supported on this device or simulator."
         }
         switch viewModel.source {
