@@ -11,6 +11,7 @@ struct QuizView: View {
     @State private var confirmingQuit = false
 
     private var activeCount: Int { words.filter { !$0.isMastered }.count }
+    private var dueCount: Int { words.filter { !$0.isMastered && $0.isDue }.count }
 
     var body: some View {
         NavigationStack {
@@ -67,13 +68,8 @@ struct QuizView: View {
     }
 
     private var startPrompt: some View {
-        ContentUnavailableView {
-            Label("Ready to review?", systemImage: "brain")
-        } description: {
-            Text("Reviews your \(activeCount) word\(activeCount == 1 ? "" : "s") still being learned, due ones first. Questions get harder as you learn each word, and missed ones come back at the end.")
-        } actions: {
-            Button("Start Quiz") { Task { await viewModel.start(allWords: words) } }
-                .buttonStyle(.borderedProminent)
+        QuizHomeView(dueCount: dueCount, activeCount: activeCount) {
+            Task { await viewModel.start(allWords: words) }
         }
     }
 

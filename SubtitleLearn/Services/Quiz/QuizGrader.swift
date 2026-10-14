@@ -11,6 +11,15 @@ enum QuizGrader {
         }
     }
 
+    /// The question as a short line for history, with the blank shown for cloze.
+    static func promptText(for question: QuizQuestion) -> String {
+        switch question.kind {
+        case .choice(let q): q.hint.isEmpty ? q.prompt : "\(q.prompt) (\(q.hint))"
+        case .pair(let q): q.word
+        case .cloze(let q): q.before.map(\.text).joined() + "___" + q.after.map(\.text).joined()
+        }
+    }
+
     static func answerText(for question: QuizQuestion) -> String {
         switch question.kind {
         case .choice(let q): q.answer

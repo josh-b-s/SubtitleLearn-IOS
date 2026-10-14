@@ -23,6 +23,7 @@ final class QuizViewModel {
 
     private var queue: [QuizQuestion] = []
     private var completed = 0
+    private var record: QuizRecord?   // this run's history entry, created on the first answer
 
     // First-attempt tallies for the summary.
     private var attempted = 0
@@ -90,6 +91,7 @@ final class QuizViewModel {
             context.insert(ReviewLog(word: word.word, correct: correct))
             levelNote = Self.levelNote(from: before, to: word.level)
             tally(correct: correct, before: before, after: word.level)
+            addToHistory(question, correct: correct, context: context)
         }
 
         let asked = queue.removeFirst()
@@ -123,6 +125,7 @@ final class QuizViewModel {
     // MARK: - Helpers
 
     private func resetTallies() {
+        record = nil
         completed = 0
         attempted = 0
         correctFirstTry = 0
@@ -135,6 +138,21 @@ final class QuizViewModel {
         if correct { correctFirstTry += 1 }
         if after > before { leveledUp += 1 }
         if Mastery.isMastered(after) && !Mastery.isMastered(before) { mastered += 1 }
+    }
+
+    private func addToHistory(_ question: QuizQuestion, correct: Bool, context: ModelContext) {
+        let item = QuizRecordItem(
+            prompt: QuizGrader.promptText(for: question),
+            answer: QuizGrader.answerText(for: question),
+            correct: correct
+        )
+        if let record {
+            record.items.append(item)
+        } else {
+            let created = QuizRecord(items: [item])
+            context.insert(created)
+            record = created
+        }
     }
 
     private static func levelNote(from old: Int, to new: Int) -> String? {

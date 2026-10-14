@@ -3,6 +3,7 @@ import SwiftUI
 struct ContentView: View {
     @State private var selection: Tab = .translate
     @State private var pendingReview: [String]?
+    @State private var settings = AppSettings.shared
 
     enum Tab { case screenShare, translate, vocabulary, quiz, settings }
 
@@ -31,6 +32,7 @@ struct ContentView: View {
                 .tabItem { Label("Settings", systemImage: "gearshape") }
                 .tag(Tab.settings)
         }
+        .preferredColorScheme(settings.appearance.colorScheme)
     }
 }
 

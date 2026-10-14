@@ -28,6 +28,11 @@ final class AppSettings {
         didSet { UserDefaults.standard.set(hideLearnedInTranslate, forKey: Self.hideTranslateDefaultsKey) }
     }
 
+    var appearance: AppearanceMode {
+        didSet { UserDefaults.standard.set(appearance.rawValue, forKey: Self.appearanceDefaultsKey) }
+    }
+
+    private static let appearanceDefaultsKey = "appearance"
     private static let hideLearnedDefaultsKey = "hideLearnedInPip"
     private static let hideTranslateDefaultsKey = "hideLearnedInTranslate"
     private static let onDeviceDefaultsKey = "preferOnDeviceSpeech"
@@ -41,5 +46,7 @@ final class AppSettings {
         preferOnDeviceSpeech = UserDefaults.standard.object(forKey: Self.onDeviceDefaultsKey) as? Bool ?? true
         hideLearnedInPip = UserDefaults.standard.object(forKey: Self.hideLearnedDefaultsKey) as? Bool ?? true
         hideLearnedInTranslate = UserDefaults.standard.bool(forKey: Self.hideTranslateDefaultsKey)
+        appearance = UserDefaults.standard.string(forKey: Self.appearanceDefaultsKey)
+            .flatMap(AppearanceMode.init(rawValue:)) ?? .system
     }
 }

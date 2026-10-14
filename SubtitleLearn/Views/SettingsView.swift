@@ -7,6 +7,13 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack {
             Form {
+                Section("Appearance") {
+                    Picker("Theme", selection: $settings.appearance) {
+                        ForEach(AppearanceMode.allCases) { Text($0.title).tag($0) }
+                    }
+                    .pickerStyle(.segmented)
+                }
+
                 Section {
                     Toggle("On-device recognition", isOn: $settings.preferOnDeviceSpeech)
                 } header: {
