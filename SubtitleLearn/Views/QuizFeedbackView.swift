@@ -5,10 +5,12 @@ struct QuizFeedbackView: View {
     let feedback: QuizFeedback
     let onContinue: () -> Void
 
+    @ScaledMetric(relativeTo: .largeTitle) private var iconSize = 56
+
     var body: some View {
         VStack(spacing: 20) {
             Image(systemName: feedback.correct ? "checkmark.circle.fill" : "xmark.circle.fill")
-                .font(.system(size: 56))
+                .font(.system(size: iconSize))
                 .foregroundStyle(feedback.correct ? Color.green : Color.red)
 
             Text(feedback.correct ? "Correct!" : "Not quite")

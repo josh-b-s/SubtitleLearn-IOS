@@ -11,6 +11,13 @@ struct SessionBreakdownBar: View {
     static let newColor = Color.blue
 
     @State private var revealed = false
+    @Environment(\.dynamicTypeSize) private var typeSize
+
+    private var legendLayout: AnyLayout {
+        typeSize.isAccessibilitySize
+            ? AnyLayout(VStackLayout(alignment: .leading, spacing: 8))
+            : AnyLayout(HStackLayout())
+    }
 
     private var total: CGFloat { CGFloat(max(alreadyKnown + learning + newWords, 1)) }
 
@@ -30,7 +37,7 @@ struct SessionBreakdownBar: View {
             .background(Color(.systemGray5))
             .clipShape(Capsule())
 
-            HStack {
+            legendLayout {
                 legend(Self.knownColor, "Already known", alreadyKnown)
                 legend(Self.learningColor, "Learning", learning)
                 legend(Self.newColor, "New", newWords)

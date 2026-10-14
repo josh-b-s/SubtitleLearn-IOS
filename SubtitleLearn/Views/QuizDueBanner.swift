@@ -5,6 +5,8 @@ struct QuizDueBanner: View {
     let dueCount: Int
     let activeCount: Int
 
+    @ScaledMetric private var iconBoxSize = 56
+
     private var title: String {
         dueCount > 0 ? "\(dueCount) Word\(dueCount == 1 ? "" : "s") Due" : "All caught up"
     }
@@ -17,7 +19,7 @@ struct QuizDueBanner: View {
         HStack(spacing: 16) {
             Image(systemName: "calendar")
                 .font(.title)
-                .frame(width: 56, height: 56)
+                .frame(width: iconBoxSize, height: iconBoxSize)
                 .background(.white.opacity(0.2), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
             VStack(alignment: .leading, spacing: 2) {
                 Text(title).font(.title2.weight(.bold))

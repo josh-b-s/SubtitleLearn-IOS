@@ -7,17 +7,27 @@ struct PairQuestionView: View {
     @Binding var meaning: String?
     let isRevealed: Bool
 
+    @ScaledMetric(relativeTo: .largeTitle) private var wordSize = 52
+    @Environment(\.dynamicTypeSize) private var typeSize
+
+    /// Side by side normally, stacked once text is too large for two narrow columns.
+    private var columnLayout: AnyLayout {
+        typeSize.isAccessibilitySize
+            ? AnyLayout(VStackLayout(alignment: .leading, spacing: 12))
+            : AnyLayout(HStackLayout(alignment: .top, spacing: 12))
+    }
+
     var body: some View {
         VStack(spacing: 20) {
             QuizPromptCard {
                 Text(question.word)
-                    .font(.system(size: 52, weight: .bold))
+                    .font(.system(size: wordSize, weight: .bold))
                 Text("Pick the pinyin and the meaning")
                     .font(.headline)
                     .padding(.top, 4)
             }
 
-            HStack(alignment: .top, spacing: 12) {
+            columnLayout {
                 column("PINYIN", choices: question.pinyinChoices, answer: question.pinyinAnswer, selection: $pinyin)
                 column("MEANING", choices: question.meaningChoices, answer: question.meaningAnswer, selection: $meaning)
             }

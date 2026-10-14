@@ -6,6 +6,13 @@ struct StatsView: View {
     @Query private var logs: [ReviewLog]
     @Query private var words: [SavedWord]
     @State private var period: StatsPeriod = .month
+    @Environment(\.dynamicTypeSize) private var typeSize
+
+    private var statCardLayout: AnyLayout {
+        typeSize.isAccessibilitySize
+            ? AnyLayout(VStackLayout(spacing: 12))
+            : AnyLayout(HStackLayout(spacing: 12))
+    }
 
     private var snapshot: StatsSnapshot {
         StatsCalculator.snapshot(logs: logs, saved: words, period: period)
@@ -26,7 +33,7 @@ struct StatsView: View {
                 }
                 .pickerStyle(.segmented)
 
-                HStack(spacing: 12) {
+                statCardLayout {
                     StatCard(value: "\(stats.wordsSaved)", label: "Words saved")
                     StatCard(value: "\(stats.reviews)", label: "Reviews")
                     StatCard(

@@ -32,6 +32,7 @@ struct TranslateView: View {
     }
 
     private static let bottomID = "bottom"
+    @ScaledMetric private var micSize = 44
 
     var body: some View {
         NavigationStack {
@@ -134,7 +135,7 @@ struct TranslateView: View {
                 } label: {
                     Image(systemName: "mic.fill")
                         .font(.title3)
-                        .frame(width: 44, height: 44)
+                        .frame(width: micSize, height: micSize)
                         .background(Color(.systemGroupedBackground), in: Circle())
                 }
                 .accessibilityLabel("Speak Chinese")

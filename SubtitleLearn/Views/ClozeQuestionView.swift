@@ -6,6 +6,7 @@ struct ClozeQuestionView: View {
     @Binding var selection: String?
     let isRevealed: Bool
     @State private var tapped: WordToken?
+    @ScaledMetric(relativeTo: .title) private var tokenSize = 28
 
     var body: some View {
         VStack(spacing: 20) {
@@ -43,7 +44,7 @@ struct ClozeQuestionView: View {
     private var blank: some View {
         let color: Color = isRevealed ? .green : (selection == nil ? .secondary : .accentColor)
         return Text(isRevealed ? question.answer : (selection ?? "＿＿"))
-            .font(.system(size: 28, weight: .bold))
+            .font(.system(size: tokenSize, weight: .bold))
             .foregroundStyle(color)
             .padding(.horizontal, 6)
             .overlay(alignment: .bottom) {
@@ -53,7 +54,7 @@ struct ClozeQuestionView: View {
 
     private func tokenButton(_ token: WordToken) -> some View {
         Button { tapped = token } label: {
-            Text(token.text).font(.system(size: 28, weight: .medium))
+            Text(token.text).font(.system(size: tokenSize, weight: .medium))
         }
         .buttonStyle(.plain)
     }

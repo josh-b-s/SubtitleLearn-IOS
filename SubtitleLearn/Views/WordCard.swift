@@ -4,10 +4,13 @@ struct WordCard: View {
     let token: WordToken
     let isSaved: Bool
 
+    @ScaledMetric(relativeTo: .largeTitle) private var wordSize = 32
+    @ScaledMetric private var maxCardWidth = 240
+
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(token.text)
-                .font(.system(size: 32, weight: .bold))
+                .font(.system(size: wordSize, weight: .bold))
                 .foregroundStyle(.primary)
 
             if !token.pinyin.isEmpty && !token.hidePinyin {
@@ -24,7 +27,7 @@ struct WordCard: View {
             }
         }
         .padding(16)
-        .frame(maxWidth: 240, alignment: .leading)
+        .frame(maxWidth: maxCardWidth, alignment: .leading)
         .fixedSize(horizontal: false, vertical: true)
         .background(
             RoundedRectangle(cornerRadius: 20, style: .continuous)

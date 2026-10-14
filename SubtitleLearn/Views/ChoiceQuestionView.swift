@@ -6,11 +6,14 @@ struct ChoiceQuestionView: View {
     @Binding var selection: String?
     let isRevealed: Bool
 
+    @ScaledMetric(relativeTo: .largeTitle) private var chineseSize = 48
+    @ScaledMetric(relativeTo: .title) private var englishSize = 28
+
     var body: some View {
         VStack(spacing: 20) {
             QuizPromptCard {
                 Text(question.prompt)
-                    .font(.system(size: question.direction == .chineseToEnglish ? 48 : 28, weight: .bold))
+                    .font(.system(size: question.direction == .chineseToEnglish ? chineseSize : englishSize, weight: .bold))
                     .multilineTextAlignment(.center)
                 if !question.hint.isEmpty {
                     Text(question.hint)

@@ -4,6 +4,8 @@ import SwiftUI
 struct QuizHistoryCard: View {
     let record: QuizRecord
 
+    @ScaledMetric private var ringSize = 52
+
     private var fraction: Double {
         record.items.isEmpty ? 0 : Double(record.correctCount) / Double(record.items.count)
     }
@@ -44,6 +46,6 @@ struct QuizHistoryCard: View {
                 .font(.caption.weight(.bold))
                 .foregroundStyle(Color.accentColor)
         }
-        .frame(width: 52, height: 52)
+        .frame(width: ringSize, height: ringSize)
     }
 }

@@ -8,12 +8,13 @@ struct WordDetailSheet: View {
     let onToggleSave: () -> Void
 
     @State private var glosses: [CharGloss] = []
+    @ScaledMetric(relativeTo: .largeTitle) private var wordSize = 52
 
     var body: some View {
         VStack(spacing: 0) {
             VStack(spacing: 6) {
                 Text(token.text)
-                    .font(.system(size: 52, weight: .bold))
+                    .font(.system(size: wordSize, weight: .bold))
                 if !token.pinyin.isEmpty {
                     Text(token.pinyin)
                         .font(.title2)
