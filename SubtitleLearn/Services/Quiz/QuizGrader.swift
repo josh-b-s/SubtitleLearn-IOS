@@ -20,6 +20,15 @@ enum QuizGrader {
         }
     }
 
+    static func explanation(for question: QuizQuestion) -> String {
+        switch question.kind {
+        case .choice(let q):
+            q.direction == .chineseToEnglish ? "\(q.prompt) means \"\(q.answer)\"" : "\(q.answer) means \"\(q.prompt)\""
+        case .pair(let q): "\(q.word) is \(q.pinyinAnswer), \"\(q.meaningAnswer)\""
+        case .cloze(let q): "\(q.answer) fits the blank"
+        }
+    }
+
     static func answerText(for question: QuizQuestion) -> String {
         switch question.kind {
         case .choice(let q): q.answer

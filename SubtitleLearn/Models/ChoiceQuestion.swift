@@ -9,4 +9,5 @@ struct ChoiceQuestion {
     let hint: String     // pinyin under a Chinese prompt, empty otherwise
     let choices: [String]
     let answer: String
+    var choicePinyin: [String: String] = [:]   // pinyin per choice, set when the choices are Chinese
 }

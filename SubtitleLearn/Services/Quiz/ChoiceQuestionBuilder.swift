@@ -14,6 +14,7 @@ enum ChoiceQuestionBuilder {
                                   choices: all.map(\.meaningText).shuffled(), answer: target.meaningText)
         }
         return ChoiceQuestion(direction: .englishToChinese, prompt: target.meaningText, hint: "",
-                              choices: all.map(\.word).shuffled(), answer: target.word)
+                              choices: all.map(\.word).shuffled(), answer: target.word,
+                              choicePinyin: Dictionary(all.map { ($0.word, $0.pinyin) }, uniquingKeysWith: { first, _ in first }))
     }
 }

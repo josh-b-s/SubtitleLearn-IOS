@@ -21,7 +21,9 @@ final class QuizViewModel {
     var selectedPinyin: String?
     var selectedMeaning: String?
 
+    private(set) var total = 0
     private var queue: [QuizQuestion] = []
+    private var answered: QuizQuestion?   // stays on screen while its feedback shows
     private var completed = 0
     private var record: QuizRecord?   // this run's history entry, created on the first answer
 
@@ -32,6 +34,15 @@ final class QuizViewModel {
     private var mastered = 0
 
     var currentQuestion: QuizQuestion? { queue.first }
+
+    var feedback: QuizFeedback? {
+        if case .feedback(let feedback) = phase { feedback } else { nil }
+    }
+
+    /// The question on screen: the one just answered while feedback shows, otherwise the next one.
+    var shownQuestion: QuizQuestion? { feedback == nil ? currentQuestion : answered }
+
+    var hasMoreQuestions: Bool { !queue.isEmpty }
     var canSubmit: Bool { currentAnswer != nil }
 
     /// True while a quiz is underway (question or feedback showing).
@@ -43,7 +54,12 @@ final class QuizViewModel {
     }
 
     /// Total stays constant: a miss moves a question to the back, it doesn't add one.
-    var progressText: String { "\(completed + 1) / \(completed + queue.count)" }
+    var progressIndex: Int {
+        let index = feedback.map { $0.correct ? completed : completed + 1 } ?? completed + 1
+        return min(max(index, 1), max(total, 1))
+    }
+
+    var progressFraction: Double { total == 0 ? 0 : Double(completed) / Double(total) }
 
     private var currentAnswer: QuizAnswer? {
         guard let question = currentQuestion else { return nil }
@@ -75,6 +91,7 @@ final class QuizViewModel {
         }
         resetTallies()
         queue = built.questions
+        total = built.questions.count
         note = built.note
         phase = .answering
     }
@@ -95,12 +112,18 @@ final class QuizViewModel {
         }
 
         let asked = queue.removeFirst()
+        answered = asked
         if correct {
             completed += 1
         } else {
             queue.append(asked.asRetry())
         }
-        phase = .feedback(QuizFeedback(correct: correct, answerText: QuizGrader.answerText(for: asked), levelNote: levelNote))
+        phase = .feedback(QuizFeedback(
+            correct: correct,
+            answerText: QuizGrader.answerText(for: asked),
+            explanation: QuizGrader.explanation(for: asked),
+            levelNote: levelNote
+        ))
     }
 
     func next() {
@@ -114,6 +137,8 @@ final class QuizViewModel {
 
     func reset() {
         queue = []
+        answered = nil
+        total = 0
         selectedChoice = nil
         selectedPinyin = nil
         selectedMeaning = nil

@@ -4,41 +4,50 @@ import SwiftUI
 struct ClozeQuestionView: View {
     let question: ClozeQuestion
     @Binding var selection: String?
+    let isRevealed: Bool
     @State private var tapped: WordToken?
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text("FILL IN THE BLANK")
-                .font(.subheadline.weight(.semibold))
-                .foregroundStyle(.secondary)
+        VStack(spacing: 20) {
+            QuizPromptCard(alignment: .leading) {
+                Text("Fill in the blank")
+                    .font(.headline)
 
-            FlowLayout(spacing: 6) {
-                ForEach(question.before) { tokenButton($0) }
-                blank
-                ForEach(question.after) { tokenButton($0) }
+                FlowLayout(spacing: 6) {
+                    ForEach(question.before) { tokenButton($0) }
+                    blank
+                    ForEach(question.after) { tokenButton($0) }
+                }
+                .padding(.top, 4)
+
+                Text(question.translation)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+
+                tokenInfo
             }
 
-            Text(question.translation)
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-
-            tokenInfo
-
             VStack(spacing: 10) {
-                ForEach(question.choices, id: \.self) { choice in
-                    OptionButton(text: choice, isSelected: selection == choice) { selection = choice }
+                ForEach(Array(question.choices.enumerated()), id: \.element) { index, choice in
+                    OptionButton(
+                        text: choice,
+                        letter: OptionState.letter(index),
+                        state: .resolve(choice: choice, answer: question.answer, selection: selection, revealed: isRevealed),
+                        isLocked: isRevealed
+                    ) { selection = choice }
                 }
             }
         }
     }
 
     private var blank: some View {
-        Text(selection ?? "＿＿")
+        let color: Color = isRevealed ? .green : (selection == nil ? .secondary : .accentColor)
+        return Text(isRevealed ? question.answer : (selection ?? "＿＿"))
             .font(.system(size: 28, weight: .bold))
-            .foregroundStyle(selection == nil ? Color.secondary : Color.accentColor)
+            .foregroundStyle(color)
             .padding(.horizontal, 6)
             .overlay(alignment: .bottom) {
-                Rectangle().frame(height: 2).foregroundStyle(Color.accentColor)
+                Rectangle().frame(height: 2).foregroundStyle(isRevealed ? Color.green : Color.accentColor)
             }
     }
 

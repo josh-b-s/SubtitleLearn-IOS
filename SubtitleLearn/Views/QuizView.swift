@@ -21,10 +21,8 @@ struct QuizView: View {
                     startPrompt
                 case .loading:
                     ProgressView("Building quiz…").frame(maxHeight: .infinity)
-                case .answering:
+                case .answering, .feedback:
                     questionScreen
-                case .feedback(let feedback):
-                    QuizFeedbackView(feedback: feedback) { viewModel.next() }
                 case .finished(let summary):
                     finishedScreen(summary)
                 case .error(let message):
@@ -43,9 +41,6 @@ struct QuizView: View {
                     ToolbarItem(placement: .topBarLeading) {
                         Button("Quit") { confirmingQuit = true }
                     }
-                }
-                if case .answering = viewModel.phase {
-                    ToolbarItem(placement: .topBarTrailing) { Text(viewModel.progressText).foregroundStyle(.secondary) }
                 }
             }
             .task(id: pendingReview) { await startPendingReview() }
@@ -106,29 +101,51 @@ struct QuizView: View {
     private var questionScreen: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
+                QuizProgressHeader(index: viewModel.progressIndex, total: viewModel.total, fraction: viewModel.progressFraction)
                 if let note = viewModel.note {
                     Text(note).font(.footnote).foregroundStyle(Color.orange)
                 }
-                if let question = viewModel.currentQuestion {
+                if let question = viewModel.shownQuestion {
                     QuizQuestionView(
                         question: question,
                         selectedChoice: $viewModel.selectedChoice,
                         selectedPinyin: $viewModel.selectedPinyin,
-                        selectedMeaning: $viewModel.selectedMeaning
+                        selectedMeaning: $viewModel.selectedMeaning,
+                        isRevealed: viewModel.feedback != nil
                     )
                     .id(question.id)
-
-                    Button {
-                        viewModel.submit(allWords: words, context: modelContext)
-                    } label: {
-                        Text("Submit").frame(maxWidth: .infinity)
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .controlSize(.large)
-                    .disabled(!viewModel.canSubmit)
                 }
             }
             .padding(20)
         }
+        .background(Color(.systemGroupedBackground))
+        .safeAreaInset(edge: .bottom) { actionBar }
+    }
+
+    private var actionBar: some View {
+        VStack(spacing: 10) {
+            if let feedback = viewModel.feedback {
+                QuizFeedbackBanner(feedback: feedback)
+            }
+            Button {
+                if viewModel.feedback == nil {
+                    viewModel.submit(allWords: words, context: modelContext)
+                } else {
+                    viewModel.next()
+                }
+            } label: {
+                Text(buttonTitle).frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.borderedProminent)
+            .controlSize(.large)
+            .disabled(viewModel.feedback == nil && !viewModel.canSubmit)
+        }
+        .padding(.horizontal, 20)
+        .padding(.bottom, 8)
+    }
+
+    private var buttonTitle: String {
+        if viewModel.feedback == nil { return "Submit" }
+        return viewModel.hasMoreQuestions ? "Next Question" : "Finish"
     }
 }
