@@ -28,6 +28,10 @@ struct StatsView: View {
                     StreakBadge(days: stats.streak)
                 }
 
+                StatsSectionCard(title: "Words over time") {
+                    WordProgressChart(weeks: stats.weekly, gainedThisWeek: stats.learnedThisWeek)
+                }
+
                 Picker("Period", selection: $period) {
                     ForEach(StatsPeriod.allCases) { Text($0.label).tag($0) }
                 }
@@ -42,10 +46,7 @@ struct StatsView: View {
                         accent: accuracyColor(stats.accuracy)
                     )
                 }
-
-                StatsSectionCard(title: "Words over time") {
-                    WordProgressChart(weeks: stats.weekly, gainedThisWeek: stats.learnedThisWeek)
-                }
+                .fixedSize(horizontal: false, vertical: true)   // lets the shorter card stretch to match
 
                 StatsSectionCard(title: "Review activity (90 days)") {
                     ReviewHeatmap(counts: stats.dailyCounts)
