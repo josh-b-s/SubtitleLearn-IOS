@@ -28,15 +28,15 @@ struct StatsView: View {
                     StreakBadge(days: stats.streak)
                 }
 
-                StatsSectionCard(title: "Words over time") {
-                    WordProgressChart(weeks: stats.weekly, gainedThisWeek: stats.learnedThisWeek)
-                }
-
                 Picker("Period", selection: $period) {
                     ForEach(StatsPeriod.allCases) { Text($0.label).tag($0) }
                 }
                 .pickerStyle(.segmented)
 
+                StatsSectionCard(title: "Words over time") {
+                    WordProgressChart(weeks: stats.weekly, gainedThisWeek: stats.learnedThisWeek)
+                }
+                
                 statCardLayout {
                     StatCard(value: "\(stats.reviews)", label: "Reviews")
                     StatCard(
