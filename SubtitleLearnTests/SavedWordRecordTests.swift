@@ -43,4 +43,12 @@ struct SavedWordRecordTests {
         #expect(!word(level: 3).isMastered)
         #expect(word(level: 4).isMastered)
     }
+
+    @Test func masteredDateIsSetOnMasteryAndClearedWhenItDrops() {
+        let w = word()
+        w.setLevel(Mastery.masteredLevel)
+        #expect(w.masteredDate != nil)
+        w.setLevel(2)
+        #expect(w.masteredDate == nil)
+    }
 }

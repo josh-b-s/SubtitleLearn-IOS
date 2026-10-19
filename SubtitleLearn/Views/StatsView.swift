@@ -1,7 +1,7 @@
 import SwiftUI
 import SwiftData
 
-/// Progress screen: streak, review numbers, mastery coverage, words learned and activity.
+/// Progress screen: streak, review accuracy, word progress over time and activity.
 struct StatsView: View {
     @Query private var logs: [ReviewLog]
     @Query private var words: [SavedWord]
@@ -34,21 +34,17 @@ struct StatsView: View {
                 .pickerStyle(.segmented)
 
                 statCardLayout {
-                    StatCard(value: "\(stats.wordsSaved)", label: "Words saved")
                     StatCard(value: "\(stats.reviews)", label: "Reviews")
                     StatCard(
-                        value: stats.retention.map { "\(Int(($0 * 100).rounded()))%" } ?? "n/a",
-                        label: "Retention",
-                        accent: retentionColor(stats.retention)
+                        value: stats.accuracy.map { "\(Int(($0 * 100).rounded()))%" } ?? "n/a",
+                        label: "Accuracy",
+                        detail: stats.reviews == 0 ? nil : "\(stats.correct) of \(stats.reviews) correct",
+                        accent: accuracyColor(stats.accuracy)
                     )
                 }
 
-                StatsSectionCard(title: "Mastery") {
-                    CoverageBar(mastered: stats.masteredCount, saved: stats.wordsSaved, fraction: stats.masteredFraction)
-                }
-
-                StatsSectionCard(title: "Words learned") {
-                    WeeklyLearnedChart(weeks: stats.weekly, total: stats.learnedTotal, gainedThisWeek: stats.learnedThisWeek)
+                StatsSectionCard(title: "Words over time") {
+                    WordProgressChart(weeks: stats.weekly, gainedThisWeek: stats.learnedThisWeek)
                 }
 
                 StatsSectionCard(title: "Review activity (90 days)") {
@@ -65,10 +61,10 @@ struct StatsView: View {
         #endif
     }
 
-    private func retentionColor(_ retention: Double?) -> Color? {
-        guard let retention else { return nil }
-        if retention >= 0.85 { return .green }
-        if retention >= 0.70 { return .orange }
+    private func accuracyColor(_ accuracy: Double?) -> Color? {
+        guard let accuracy else { return nil }
+        if accuracy >= 0.85 { return .green }
+        if accuracy >= 0.70 { return .orange }
         return .red
     }
 }

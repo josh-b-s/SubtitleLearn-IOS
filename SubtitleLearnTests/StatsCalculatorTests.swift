@@ -24,13 +24,12 @@ struct StatsCalculatorTests {
         StatsCalculator.snapshot(logs: logs, saved: saved, period: period, now: now, calendar: calendar)
     }
 
-    @Test func emptyDataGivesZerosAndNoRetention() {
+    @Test func emptyDataGivesZerosAndNoAccuracy() {
         let stats = snapshot([])
         #expect(stats.reviews == 0)
-        #expect(stats.retention == nil)
+        #expect(stats.accuracy == nil)
         #expect(stats.streak == 0)
-        #expect(stats.masteredFraction == 0)
-        #expect(stats.learnedTotal == 0)
+        #expect(stats.weekly.last?.learned == 0)
     }
 
     // MARK: - Streak
@@ -51,9 +50,9 @@ struct StatsCalculatorTests {
         #expect(snapshot([log(daysAgo: 2), log(daysAgo: 3)]).streak == 0)
     }
 
-    // MARK: - Period and retention
+    // MARK: - Period and accuracy
 
-    @Test func periodLimitsReviewsAndRetention() {
+    @Test func periodLimitsReviewsAndAccuracy() {
         let logs = [
             log(correct: true, daysAgo: 2),
             log(correct: false, daysAgo: 3),
@@ -61,7 +60,8 @@ struct StatsCalculatorTests {
         ]
         let week = snapshot(logs, period: .week)
         #expect(week.reviews == 2)
-        #expect(week.retention == 0.5)
+        #expect(week.correct == 1)
+        #expect(week.accuracy == 0.5)
 
         #expect(snapshot(logs, period: .month).reviews == 3)
         #expect(snapshot(logs, period: .all).reviews == 3)
@@ -89,18 +89,34 @@ struct StatsCalculatorTests {
             log("c", correct: true, daysAgo: 1)
         ]
         let stats = snapshot(logs)
-        #expect(stats.learnedTotal == 2)
         #expect(stats.learnedThisWeek == 1)
         #expect(stats.weekly.count == StatsCalculator.chartWeeks)
-        #expect(stats.weekly.last?.total == 2)
+        #expect(stats.weekly.last?.learned == 2)
     }
 
-    @Test func masteredFractionUsesSavedWords() {
-        let saved = (0..<4).map { SavedWord(word: "w\($0)", pinyin: "", meanings: []) }
-        saved[0].level = Mastery.masteredLevel
-        let stats = snapshot([], saved: saved)
-        #expect(stats.wordsSaved == 4)
-        #expect(stats.masteredCount == 1)
-        #expect(stats.masteredFraction == 0.25)
+    // MARK: - Saved and mastered
+
+    private func date(daysAgo: Int) -> Date {
+        calendar.date(byAdding: .day, value: -daysAgo, to: now)!
+    }
+
+    @Test func savedAndMasteredAreRunningTotals() {
+        let old = SavedWord(word: "a", pinyin: "", meanings: [], dateAdded: date(daysAgo: 200))
+        let recent = SavedWord(word: "b", pinyin: "", meanings: [], dateAdded: date(daysAgo: 1))
+        recent.level = Mastery.masteredLevel
+        recent.masteredDate = date(daysAgo: 1)
+
+        let weekly = snapshot([], saved: [old, recent]).weekly
+        #expect(weekly.first?.saved == 1)
+        #expect(weekly.first?.mastered == 0)
+        #expect(weekly.last?.saved == 2)
+        #expect(weekly.last?.mastered == 1)
+    }
+
+    @Test func masteredWithoutADateCountsFromTheDayItWasAdded() {
+        let legacy = SavedWord(word: "a", pinyin: "", meanings: [], dateAdded: date(daysAgo: 200))
+        legacy.level = Mastery.masteredLevel
+
+        #expect(snapshot([], saved: [legacy]).weekly.first?.mastered == 1)
     }
 }

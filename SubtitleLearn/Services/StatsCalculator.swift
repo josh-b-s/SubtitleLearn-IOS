@@ -20,19 +20,14 @@ enum StatsCalculator {
         } else {
             inPeriod = logs
         }
-        let retention = inPeriod.isEmpty ? nil : Double(inPeriod.filter(\.correct).count) / Double(inPeriod.count)
-
-        let weekly = weeklyLearned(logs: logs, today: today, calendar: calendar)
+        let correct = inPeriod.filter(\.correct).count
 
         return StatsSnapshot(
-            wordsSaved: saved.count,
-            masteredCount: saved.filter(\.isMastered).count,
             streak: streak(logs: logs, today: today, calendar: calendar),
             reviews: inPeriod.count,
-            retention: retention,
+            correct: correct,
             dailyCounts: dailyCounts(logs: logs, today: today, calendar: calendar),
-            weekly: weekly.series,
-            learnedTotal: weekly.total
+            weekly: weeklyProgress(logs: logs, saved: saved, today: today, calendar: calendar)
         )
     }
 
@@ -59,32 +54,38 @@ enum StatsCalculator {
         return counts
     }
 
-    /// A word counts as learned on the day of its first correct answer.
-    private static func weeklyLearned(
+    /// Running totals at the end of each of the last `chartWeeks` weeks. A word counts as learned
+    /// on the day of its first correct answer, saved on the day it was added, mastered on `masteredDate`.
+    private static func weeklyProgress(
         logs: [ReviewLog],
+        saved: [SavedWord],
         today: Date,
         calendar: Calendar
-    ) -> (series: [WeeklyLearned], total: Int) {
+    ) -> [WeeklyProgress] {
         var firstCorrect: [String: Date] = [:]
         for log in logs where log.correct {
             if let existing = firstCorrect[log.word], existing <= log.date { continue }
             firstCorrect[log.word] = log.date
         }
+        let learnedDates = Array(firstCorrect.values)
+        let savedDates = saved.map(\.dateAdded)
+        // Words mastered before the date was tracked fall back to the day they were added.
+        let masteredDates = saved.filter(\.isMastered).map { $0.masteredDate ?? $0.dateAdded }
 
         guard let thisWeek = calendar.dateInterval(of: .weekOfYear, for: today)?.start,
               let firstWeek = calendar.date(byAdding: .weekOfYear, value: -(chartWeeks - 1), to: thisWeek)
-        else { return ([], firstCorrect.count) }
+        else { return [] }
 
-        var running = firstCorrect.values.filter { $0 < firstWeek }.count
-        var series: [WeeklyLearned] = []
-        for offset in 0..<chartWeeks {
+        return (0..<chartWeeks).compactMap { offset in
             guard let start = calendar.date(byAdding: .weekOfYear, value: offset, to: firstWeek),
                   let end = calendar.date(byAdding: .weekOfYear, value: 1, to: start)
-            else { continue }
-            let gained = firstCorrect.values.filter { $0 >= start && $0 < end }.count
-            running += gained
-            series.append(WeeklyLearned(weekStart: start, gained: gained, total: running))
+            else { return nil }
+            return WeeklyProgress(
+                weekStart: start,
+                learned: learnedDates.filter { $0 < end }.count,
+                saved: savedDates.filter { $0 < end }.count,
+                mastered: masteredDates.filter { $0 < end }.count
+            )
         }
-        return (series, firstCorrect.count)
     }
 }

@@ -1,6 +1,6 @@
 import Foundation
 
-/// Window for the reviews and retention numbers.
+/// Window for the reviews and accuracy numbers.
 enum StatsPeriod: String, CaseIterable, Identifiable {
     case week, month, all
 

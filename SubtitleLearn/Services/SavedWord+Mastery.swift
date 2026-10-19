@@ -9,14 +9,27 @@ extension SavedWord {
         review(quality: Mastery.quality(level: questionLevel, correct: correct))
         guard questionLevel == level else { return }
 
+        let wasMastered = isMastered
         let next = Mastery.next(.init(level: level, streak: levelStreak), correct: correct)
         level = next.level
         levelStreak = next.streak
+        stampMastery(wasMastered: wasMastered)
     }
 
     /// Manual override from the detail sheet. Clears the streak so the new level starts fresh.
     func setLevel(_ newLevel: Int) {
+        let wasMastered = isMastered
         level = min(max(newLevel, 1), Mastery.masteredLevel)
         levelStreak = 0
+        stampMastery(wasMastered: wasMastered)
+    }
+
+    /// Feeds the mastered line on the stats chart.
+    private func stampMastery(wasMastered: Bool) {
+        if isMastered && !wasMastered {
+            masteredDate = .now
+        } else if !isMastered {
+            masteredDate = nil
+        }
     }
 }
