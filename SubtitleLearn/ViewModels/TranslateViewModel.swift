@@ -20,10 +20,6 @@ final class TranslateViewModel {
     private var listeningSession = UUID()
     private var textBeforeListening = ""
 
-    var canTranslate: Bool {
-        isDictionaryReady && !isListening && !inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-    }
-
     // MARK: - Dictionary
 
     func loadDictionary() async {
@@ -32,12 +28,14 @@ final class TranslateViewModel {
         dictionary = loaded
         isDictionaryReady = loaded != nil
         dictionaryFailedToLoad = loaded == nil
+        translate()
     }
 
     func translate() {
         guard let dictionary else { return }
-        tokens = dictionary.tokens(for: inputText)
-        hasTranslated = true
+        let hasInput = !inputText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        tokens = hasInput ? dictionary.tokens(for: inputText) : []
+        hasTranslated = hasInput
     }
 
     // MARK: - Speech input

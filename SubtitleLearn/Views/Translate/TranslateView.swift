@@ -39,11 +39,8 @@ struct TranslateView: View {
             ScrollViewReader { proxy in
                 ScrollView {
                     VStack(alignment: .leading, spacing: 20) {
-                        if viewModel.isListening {
-                            listeningHint
-                        } else {
+                        if !viewModel.isListening {
                             inputCard
-                            translateButton
                             #if DEBUG
                             Button("Test speech with sample audio") { viewModel.transcribeSample() }
                                 .font(.footnote)
@@ -72,7 +69,10 @@ struct TranslateView: View {
             .navigationTitle("Translate")
             .safeAreaInset(edge: .bottom) {
                 if viewModel.isListening {
-                    StopRecordingBar { viewModel.stopListening() }
+                    ListeningBar(
+                        hasTranscript: !viewModel.tokens.isEmpty,
+                        hideLearned: $settings.hideLearnedInTranslate
+                    ) { viewModel.stopListening() }
                 }
             }
         }
@@ -83,6 +83,13 @@ struct TranslateView: View {
             }
         }
         .task { await viewModel.loadDictionary() }
+        .task(id: viewModel.inputText) {
+            // Speech updates translate directly, so only typed or pasted text is debounced.
+            guard !viewModel.isListening else { return }
+            try? await Task.sleep(for: .milliseconds(300))
+            guard !Task.isCancelled else { return }
+            viewModel.translate()
+        }
         .onChange(of: scenePhase) { _, phase in
             if phase != .active { viewModel.stopListening() }
         }
@@ -94,72 +101,31 @@ struct TranslateView: View {
         }
     }
 
-    private var listeningHint: some View {
-        HStack(spacing: 8) {
-            Image(systemName: "waveform").foregroundStyle(.red).symbolEffect(.variableColor.iterative)
-            Text(viewModel.tokens.isEmpty ? "Listening, start speaking…" : "Listening…")
-                .foregroundStyle(.secondary)
-        }
-        .padding(.top, 8)
-    }
-
     // MARK: - Input
 
     private var inputCard: some View {
-        VStack(spacing: 8) {
-            ZStack(alignment: .topLeading) {
-                TextEditor(text: $viewModel.inputText)
-                    .focused($inputFocused)
-                    .scrollContentBackground(.hidden)
+        HStack(alignment: .bottom, spacing: 8) {
+            TextField("Paste or type Chinese text…", text: $viewModel.inputText, axis: .vertical)
+                .focused($inputFocused)
+                .font(.title3)
+                .lineLimit(1...6)
+                .padding(.vertical, 10)
+
+            Button {
+                inputFocused = false
+                Task { await viewModel.startListening() }
+            } label: {
+                Image(systemName: "mic.fill")
                     .font(.title3)
-                    .frame(minHeight: 110)
-
-                if viewModel.inputText.isEmpty {
-                    Text("Paste or type Chinese text…")
-                        .font(.title3)
-                        .foregroundStyle(.tertiary)
-                        .padding(.top, 8)
-                        .padding(.leading, 5)
-                        .allowsHitTesting(false)
-                }
+                    .frame(width: micSize, height: micSize)
+                    .background(Color(.systemGroupedBackground), in: Circle())
             }
-
-            HStack {
-                Text("Mandarin Chinese")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                Spacer()
-                Button {
-                    inputFocused = false
-                    Task { await viewModel.startListening() }
-                } label: {
-                    Image(systemName: "mic.fill")
-                        .font(.title3)
-                        .frame(width: micSize, height: micSize)
-                        .background(Color(.systemGroupedBackground), in: Circle())
-                }
-                .accessibilityLabel("Speak Chinese")
-            }
+            .accessibilityLabel("Speak Chinese")
         }
-        .padding(.horizontal, 12)
-        .padding(.top, 8)
-        .padding(.bottom, 8)
+        .padding(.leading, 16)
+        .padding(.trailing, 6)
+        .padding(.vertical, 6)
         .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 24, style: .continuous))
-    }
-
-    private var translateButton: some View {
-        Button {
-            inputFocused = false
-            viewModel.translate()
-        } label: {
-            Text("Translate")
-                .font(.title3.weight(.semibold))
-                .frame(maxWidth: .infinity, minHeight: 32)
-        }
-        .buttonStyle(.borderedProminent)
-        .buttonBorderShape(.roundedRectangle(radius: 18))
-        .controlSize(.large)
-        .disabled(!viewModel.canTranslate)
     }
 
     // MARK: - Results
@@ -179,18 +145,20 @@ struct TranslateView: View {
             Text("No Chinese characters found.")
                 .foregroundStyle(.secondary)
         } else if !viewModel.tokens.isEmpty {
-            HStack {
-                Text("INTERACTIVE BREAKDOWN")
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(.secondary)
-                Spacer()
-                Toggle(isOn: $settings.hideLearnedInTranslate) {
-                    Label("Hide learned", systemImage: "eye.slash")
+            if !viewModel.isListening {
+                HStack {
+                    Text("INTERACTIVE BREAKDOWN")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    Toggle(isOn: $settings.hideLearnedInTranslate) {
+                        Label("Hide learned", systemImage: "eye.slash")
+                    }
+                    .toggleStyle(.button)
+                    .controlSize(.small)
                 }
-                .toggleStyle(.button)
-                .controlSize(.small)
+                .padding(.top, 4)
             }
-            .padding(.top, 4)
 
             FlowLayout(spacing: 12) {
                 ForEach(displayTokens) { token in
