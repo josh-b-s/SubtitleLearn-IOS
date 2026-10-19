@@ -43,6 +43,7 @@ struct QuizView: View {
                     }
                 }
             }
+            .toolbar(viewModel.isInProgress ? .hidden : .automatic, for: .tabBar)
             .task(id: pendingReview) { await startPendingReview() }
             .alert("Quit this quiz?", isPresented: $confirmingQuit) {
                 Button("Quit Quiz", role: .destructive) { viewModel.reset() }
@@ -118,6 +119,7 @@ struct QuizView: View {
             }
             .padding(20)
         }
+        .scrollBounceBehavior(.basedOnSize)
         .background(Color(.systemGroupedBackground))
         .safeAreaInset(edge: .bottom) { actionBar }
     }
@@ -143,7 +145,7 @@ struct QuizView: View {
         .padding(.horizontal, 20)
         .padding(.top, 10)
         .padding(.bottom, 8)
-        .background(.bar)
+        .background(Color(.systemGroupedBackground))
     }
 
     private var buttonTitle: String {
