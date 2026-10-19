@@ -44,7 +44,7 @@ struct QuizView: View {
                 }
             }
             .task(id: pendingReview) { await startPendingReview() }
-            .confirmationDialog("Quit this quiz?", isPresented: $confirmingQuit, titleVisibility: .visible) {
+            .alert("Quit this quiz?", isPresented: $confirmingQuit) {
                 Button("Quit Quiz", role: .destructive) { viewModel.reset() }
                 Button("Keep Going", role: .cancel) {}
             } message: {
@@ -141,7 +141,9 @@ struct QuizView: View {
             .disabled(viewModel.feedback == nil && !viewModel.canSubmit)
         }
         .padding(.horizontal, 20)
+        .padding(.top, 10)
         .padding(.bottom, 8)
+        .background(.bar)
     }
 
     private var buttonTitle: String {
