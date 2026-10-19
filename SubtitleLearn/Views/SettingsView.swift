@@ -45,6 +45,10 @@ struct SettingsView: View {
                 Section {
                     Stepper("\(settings.questionsPerQuiz) questions per quiz", value: $settings.questionsPerQuiz, in: 3...20)
                 }
+
+                Section {
+                    NavigationLink("About") { AboutView() }
+                }
             }
             .navigationTitle("Settings")
         }
