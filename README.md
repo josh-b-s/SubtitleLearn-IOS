@@ -26,12 +26,15 @@ Author: Josh Brian Saputra (34672087), FIT3178 P9 Custom App.
 
 ## Project layout
 
-- `SubtitleLearn/Models`: SwiftData models and quiz types.
-- `SubtitleLearn/Services`: dictionary, segmentation, speech, spaced repetition, quiz builders, Gemini client.
+- `SubtitleLearn/App`: app entry point and root view.
+- `SubtitleLearn/Models`: SwiftData models and quiz types, grouped by Vocabulary, Quiz, Session, Stats and Settings.
+- `SubtitleLearn/Services`: Dictionary, Vocabulary, Learning (mastery and spaced repetition), Audio, Speech, Quiz, Session, Stats, Pip, Gemini and Settings.
 - `SubtitleLearn/ViewModels`: state for the Translate, Screen Share and Quiz screens.
-- `SubtitleLearn/Views`: SwiftUI views, one per file.
+- `SubtitleLearn/Views`: SwiftUI views, one per file, grouped by screen. `Components` holds views used across screens.
+- `SubtitleLearn/Resources`: dictionary and sample audio.
 - `SubtitleBroadcast`: broadcast upload extension.
 - `Shared`: code used by both the app and the extension.
+- `docs`: setup notes.
 
 ## Acknowledgements
 
