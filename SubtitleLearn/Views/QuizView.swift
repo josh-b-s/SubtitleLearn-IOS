@@ -29,7 +29,8 @@ struct QuizView: View {
                     errorScreen(message)
                 }
             }
-            .navigationTitle("Quiz")
+            .navigationTitle(viewModel.isInProgress ? "" : "Quiz")
+            .navigationBarTitleDisplayMode(viewModel.isInProgress ? .inline : .automatic)
             .toolbar {
                 if !viewModel.isInProgress {
                     ToolbarItem(placement: .topBarTrailing) {

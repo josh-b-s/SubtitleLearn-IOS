@@ -69,7 +69,7 @@ struct TranslateView: View {
                 }
             }
             .background(Color(.systemGroupedBackground))
-            .navigationTitle("SubtitleLearn")
+            .navigationTitle("Translate")
             .safeAreaInset(edge: .bottom) {
                 if viewModel.isListening {
                     StopRecordingBar { viewModel.stopListening() }
