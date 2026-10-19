@@ -61,28 +61,29 @@ struct VocabularyView: View {
     }
 
     private var list: some View {
-        List {
+        VStack(spacing: 0) {
             MasteryFilterBar(selection: $filter)
-                .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
-                .listRowBackground(Color.clear)
-                .listRowSeparator(.hidden)
+                .padding(.vertical, 8)
+                .background(Color(.systemGroupedBackground))
 
-            ForEach(filtered) { word in
-                Button { selected = word } label: { VocabularyRow(word: word) }
-                    .buttonStyle(.plain)
+            List {
+                ForEach(filtered) { word in
+                    Button { selected = word } label: { VocabularyRow(word: word) }
+                        .buttonStyle(.plain)
+                }
+                .onDelete { offsets in
+                    let current = filtered
+                    offsets.forEach { modelContext.delete(current[$0]) }
+                }
             }
-            .onDelete { offsets in
-                let current = filtered
-                offsets.forEach { modelContext.delete(current[$0]) }
-            }
-        }
-        .overlay {
-            if filtered.isEmpty {
-                ContentUnavailableView(
-                    "No words found",
-                    systemImage: "magnifyingglass",
-                    description: Text(query.isEmpty ? "No words at this stage yet." : "No matches for \"\(query)\".")
-                )
+            .overlay {
+                if filtered.isEmpty {
+                    ContentUnavailableView(
+                        "No words found",
+                        systemImage: "magnifyingglass",
+                        description: Text(query.isEmpty ? "No words at this stage yet." : "No matches for \"\(query)\".")
+                    )
+                }
             }
         }
     }
