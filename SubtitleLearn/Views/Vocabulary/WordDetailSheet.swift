@@ -8,6 +8,10 @@ struct WordDetailSheet: View {
     let onToggleSave: () -> Void
 
     @State private var glosses: [CharGloss] = []
+    @State private var headerHeight: CGFloat = 0
+    @State private var contentHeight: CGFloat = 0
+    @State private var buttonHeight: CGFloat = 0
+    @State private var bottomInset: CGFloat = 0
     @ScaledMetric(relativeTo: .largeTitle) private var wordSize = 52
 
     var body: some View {
@@ -23,6 +27,7 @@ struct WordDetailSheet: View {
             }
             .padding(.top, 28)
             .padding(.bottom, 20)
+            .measureHeight(into: $headerHeight)
 
             Divider()
 
@@ -38,6 +43,7 @@ struct WordDetailSheet: View {
                 }
                 .padding(.top, 20)
                 .padding(.bottom, 12)
+                .measureHeight(into: $contentHeight)
             }
             .scrollBounceBehavior(.basedOnSize)
 
@@ -51,14 +57,23 @@ struct WordDetailSheet: View {
             .controlSize(.large)
             .tint(isSaved ? .red : .accentColor)
             .padding(.bottom, 8)
+            .measureHeight(into: $buttonHeight)
         }
         .padding(.horizontal, 24)
+        .onGeometryChange(for: CGFloat.self) { $0.safeAreaInsets.bottom } action: { bottomInset = $0 }
         .task(id: token.text) {
             glosses = await DictionaryLoader.shared.value?.breakdown(for: token.text) ?? []
         }
-        .presentationDetents(level == nil ? [.medium] : [.medium, .large])
+        .presentationDetents(detents)
         .presentationDragIndicator(.visible)
         .presentationCornerRadius(32)
+    }
+
+    /// Opens just tall enough to show everything, so the mastery picker isn't hidden below the fold.
+    private var detents: [PresentationDetent] {
+        guard contentHeight > 0 else { return [.medium, .large] }
+        let fit = headerHeight + 1 + contentHeight + buttonHeight + bottomInset
+        return [.height(fit), .large]
     }
 
     private var meanings: some View {
