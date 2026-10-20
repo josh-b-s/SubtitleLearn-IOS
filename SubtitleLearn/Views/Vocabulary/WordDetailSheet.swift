@@ -70,7 +70,7 @@ struct WordDetailSheet: View {
     }
 
     /// Opens just tall enough to show everything, so the mastery picker isn't hidden below the fold.
-    private var detents: [PresentationDetent] {
+    private var detents: Set<PresentationDetent> {
         guard contentHeight > 0 else { return [.medium, .large] }
         let fit = headerHeight + 1 + contentHeight + buttonHeight + bottomInset
         return [.height(fit), .large]
