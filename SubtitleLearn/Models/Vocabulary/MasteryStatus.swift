@@ -1,6 +1,6 @@
 import Foundation
 
-/// Three-way grouping of levels used by the Vocabulary filter and row dots.
+/// Three-way grouping of levels used by the Vocabulary row dots.
 enum MasteryStatus: String, CaseIterable, Identifiable {
     case new = "New"
     case learning = "Learning"

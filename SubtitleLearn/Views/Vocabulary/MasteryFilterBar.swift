@@ -1,16 +1,16 @@
 import SwiftUI
 
-/// Chip row: All plus one chip per mastery status (nil means All), then a Due today toggle that combines with them.
+/// Chip row: All plus one chip per mastery level group (nil means All), then a Due today toggle that combines with them.
 struct MasteryFilterBar: View {
-    @Binding var selection: MasteryStatus?
+    @Binding var selection: MasteryFilter?
     @Binding var dueOnly: Bool
 
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
                 chip("All", isOn: selection == nil) { selection = nil }
-                ForEach(MasteryStatus.allCases) { status in
-                    chip(status.rawValue, isOn: selection == status) { selection = status }
+                ForEach(MasteryFilter.allCases) { filter in
+                    chip(filter.rawValue, isOn: selection == filter) { selection = filter }
                 }
                 chip("Due today", isOn: dueOnly) { dueOnly.toggle() }
             }

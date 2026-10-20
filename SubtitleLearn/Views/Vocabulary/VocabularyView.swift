@@ -8,7 +8,7 @@ struct VocabularyView: View {
     @State private var settings = AppSettings.shared
 
     @State private var query = ""
-    @State private var filter: MasteryStatus?
+    @State private var filter: MasteryFilter?
     @State private var dueOnly = false
     @State private var selected: SavedWord?
     @State private var route: Route?
@@ -17,7 +17,7 @@ struct VocabularyView: View {
 
     private var filtered: [SavedWord] {
         let matching = words.filter { word in
-            (filter == nil || MasteryStatus(level: word.level) == filter)
+            (filter?.matches(level: word.level) ?? true)
                 && (!dueOnly || (!word.isMastered && word.isDue))
                 && word.matches(query)
         }
