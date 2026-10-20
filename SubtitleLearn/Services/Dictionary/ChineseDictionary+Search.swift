@@ -15,15 +15,19 @@ struct DictionaryMatch: Identifiable, Hashable, Sendable {
 }
 
 extension ChineseDictionary {
-    /// Finds words by Chinese text or English meaning. Exact and prefix matches rank first,
+    /// Finds words by Chinese text, pinyin or English meaning. Exact and prefix matches rank first,
     /// custom words win ties, then shorter words. Call from a background task.
     func search(_ query: String, limit: Int = 50) -> [DictionaryMatch] {
         let q = query.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         guard !q.isEmpty else { return [] }
 
+        let key = q.pinyinKey
+        let pinyinQuery = key.allSatisfy { $0.isASCII && $0.isLetter } ? key : nil
+
         var hits: [(score: Int, match: DictionaryMatch)] = []
-        forEachEntry { word, entry, isCustom in
-            guard let score = Self.score(q, word: word, meanings: entry.meanings) else { return }
+        forEachEntry { word, entry, isCustom, pinyinKey in
+            guard let score = Self.score(q, pinyinQuery: pinyinQuery, word: word, pinyinKey: pinyinKey, meanings: entry.meanings)
+            else { return }
             hits.append((score, DictionaryMatch(word: word, entry: entry, isCustom: isCustom)))
         }
 
@@ -36,14 +40,19 @@ extension ChineseDictionary {
         return hits.prefix(limit).map(\.match)
     }
 
-    /// Lower is better. Nil means no match.
-    private static func score(_ q: String, word: String, meanings: [String]) -> Int? {
+    /// Lower is better. Nil means no match. Pinyin sits between exact and partial English matches,
+    /// because short syllables like "he" are also English words.
+    private static func score(_ q: String, pinyinQuery: String?, word: String, pinyinKey: String, meanings: [String]) -> Int? {
         if word == q { return 0 }
         if word.hasPrefix(q) { return 1 }
         if word.contains(q) { return 2 }
         if meanings.contains(q) { return 3 }
-        if meanings.contains(where: { $0.hasPrefix(q) }) { return 4 }
-        if meanings.contains(where: { $0.contains(q) }) { return 5 }
+        if let pinyinQuery {
+            if pinyinKey == pinyinQuery { return 4 }
+            if pinyinKey.hasPrefix(pinyinQuery) { return 5 }
+        }
+        if meanings.contains(where: { $0.hasPrefix(q) }) { return 6 }
+        if meanings.contains(where: { $0.contains(q) }) { return 7 }
         return nil
     }
 }

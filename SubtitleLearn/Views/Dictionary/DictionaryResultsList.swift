@@ -16,7 +16,7 @@ struct DictionaryResultsList: View {
             ContentUnavailableView(
                 "Search the dictionary",
                 systemImage: "magnifyingglass",
-                description: Text("Find a word by its Chinese characters or English meaning.")
+                description: Text("Find a word by its Chinese characters, pinyin or English meaning.")
             )
         } else if viewModel.isSearching && viewModel.results.isEmpty {
             ProgressView().frame(maxWidth: .infinity, maxHeight: .infinity)

@@ -24,26 +24,32 @@ struct WordToken: Identifiable, Hashable {
 /// (same approach as the Android version's Dictionary.segment).
 struct ChineseDictionary: Sendable {
     private let entries: [String: DictionaryEntry]
+    private let pinyinKeys: [String: String]        // pinyinKey of each bundled entry, so search doesn't refold 100k strings
     private let custom: [String: DictionaryEntry]   // user-added words, win over bundled ones
     private let maxWordLength = 6
     static let maxMeanings = 3
 
     init(entries: [String: DictionaryEntry], custom: [String: DictionaryEntry] = [:]) {
+        self.init(entries: entries, pinyinKeys: entries.mapValues { $0.pinyin.pinyinKey }, custom: custom)
+    }
+
+    private init(entries: [String: DictionaryEntry], pinyinKeys: [String: String], custom: [String: DictionaryEntry]) {
         self.entries = entries
+        self.pinyinKeys = pinyinKeys
         self.custom = custom
     }
 
-    /// Same bundled words with the user's custom words layered on top. Cheap, shares the big table.
+    /// Same bundled words with the user's custom words layered on top. Cheap, shares the big tables.
     func withCustom(_ custom: [String: DictionaryEntry]) -> ChineseDictionary {
-        ChineseDictionary(entries: entries, custom: custom)
+        ChineseDictionary(entries: entries, pinyinKeys: pinyinKeys, custom: custom)
     }
 
     private func lookup(_ word: String) -> DictionaryEntry? { custom[word] ?? entries[word] }
 
     /// Visits every word, custom ones first. `isCustom` is true for user-added words.
-    func forEachEntry(_ body: (_ word: String, _ entry: DictionaryEntry, _ isCustom: Bool) -> Void) {
-        for (word, entry) in custom { body(word, entry, true) }
-        for (word, entry) in entries where custom[word] == nil { body(word, entry, false) }
+    func forEachEntry(_ body: (_ word: String, _ entry: DictionaryEntry, _ isCustom: Bool, _ pinyinKey: String) -> Void) {
+        for (word, entry) in custom { body(word, entry, true, entry.pinyin.pinyinKey) }
+        for (word, entry) in entries where custom[word] == nil { body(word, entry, false, pinyinKeys[word] ?? "") }
     }
 
     /// Loads Resources/zh-en.tsv. Each line: word <TAB> meanings (slash separated) <TAB> pinyin

@@ -24,7 +24,7 @@ struct DictionaryView: View {
         )
         .navigationTitle("Dictionary")
         .navigationBarTitleDisplayMode(.inline)
-        .searchable(text: $query, prompt: "Search word or meaning…")
+        .searchable(text: $query, prompt: "Search word, pinyin or meaning…")
         .task(id: "\(query)|\(refresh)") { await viewModel.search(query) }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {

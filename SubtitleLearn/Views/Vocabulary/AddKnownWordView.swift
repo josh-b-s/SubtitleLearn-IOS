@@ -27,7 +27,7 @@ struct AddKnownWordView: View {
         )
         .navigationTitle("Add known word")
         .navigationBarTitleDisplayMode(.inline)
-        .searchable(text: $query, prompt: "Search word or meaning…")
+        .searchable(text: $query, prompt: "Search word, pinyin or meaning…")
         .task(id: "\(query)|\(refresh)") { await viewModel.search(query) }
         .safeAreaInset(edge: .bottom) {
             if let selected { gradePanel(selected) }
