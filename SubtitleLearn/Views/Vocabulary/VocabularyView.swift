@@ -3,19 +3,29 @@ import SwiftData
 
 struct VocabularyView: View {
     @Environment(\.modelContext) private var modelContext
-    @Query(sort: \SavedWord.dateAdded, order: .reverse) private var words: [SavedWord]
+    @Query private var words: [SavedWord]
+    @State private var settings = AppSettings.shared
 
     @State private var query = ""
     @State private var filter: MasteryStatus?
+    @State private var dueOnly = false
     @State private var selected: SavedWord?
     @State private var route: Route?
 
     private enum Route: Hashable { case dictionary, addKnown }
 
     private var filtered: [SavedWord] {
-        words.filter { word in
-            (filter == nil || MasteryStatus(level: word.level) == filter) && word.matches(query)
+        let matching = words.filter { word in
+            (filter == nil || MasteryStatus(level: word.level) == filter)
+                && (!dueOnly || (!word.isMastered && word.isDue))
+                && word.matches(query)
         }
+        return settings.vocabularySort.sorted(matching)
+    }
+
+    private var emptyDescription: String {
+        if !query.isEmpty { return "No matches for \"\(query)\"." }
+        return dueOnly ? "Nothing is due for review today." : "No words at this stage yet."
     }
 
     var body: some View {
@@ -60,11 +70,29 @@ struct VocabularyView: View {
         }
     }
 
+    private var sortMenu: some View {
+        Menu {
+            Picker("Sort by", selection: $settings.vocabularySort) {
+                ForEach(VocabularySort.allCases) { Text($0.rawValue).tag($0) }
+            }
+        } label: {
+            Image(systemName: "arrow.up.arrow.down")
+                .font(.subheadline.weight(.semibold))
+                .frame(width: 36, height: 36)
+                .background(Circle().fill(Color(.secondarySystemGroupedBackground)))
+        }
+        .accessibilityLabel("Sort")
+    }
+
     private var list: some View {
         VStack(spacing: 0) {
-            MasteryFilterBar(selection: $filter)
-                .padding(.vertical, 8)
-                .background(Color(.systemGroupedBackground))
+            HStack(spacing: 0) {
+                MasteryFilterBar(selection: $filter, dueOnly: $dueOnly)
+                sortMenu
+                    .padding(.trailing, 16)
+            }
+            .padding(.vertical, 8)
+            .background(Color(.systemGroupedBackground))
 
             List {
                 ForEach(filtered) { word in
@@ -81,7 +109,7 @@ struct VocabularyView: View {
                     ContentUnavailableView(
                         "No words found",
                         systemImage: "magnifyingglass",
-                        description: Text(query.isEmpty ? "No words at this stage yet." : "No matches for \"\(query)\".")
+                        description: Text(emptyDescription)
                     )
                 }
             }

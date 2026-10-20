@@ -32,7 +32,12 @@ final class AppSettings {
         didSet { UserDefaults.standard.set(appearance.rawValue, forKey: Self.appearanceDefaultsKey) }
     }
 
+    var vocabularySort: VocabularySort {
+        didSet { UserDefaults.standard.set(vocabularySort.rawValue, forKey: Self.vocabularySortDefaultsKey) }
+    }
+
     private static let appearanceDefaultsKey = "appearance"
+    private static let vocabularySortDefaultsKey = "vocabularySort"
     private static let hideLearnedDefaultsKey = "hideLearnedInPip"
     private static let hideTranslateDefaultsKey = "hideLearnedInTranslate"
     private static let onDeviceDefaultsKey = "preferOnDeviceSpeech"
@@ -48,5 +53,7 @@ final class AppSettings {
         hideLearnedInTranslate = UserDefaults.standard.bool(forKey: Self.hideTranslateDefaultsKey)
         appearance = UserDefaults.standard.string(forKey: Self.appearanceDefaultsKey)
             .flatMap(AppearanceMode.init(rawValue:)) ?? .system
+        vocabularySort = UserDefaults.standard.string(forKey: Self.vocabularySortDefaultsKey)
+            .flatMap(VocabularySort.init(rawValue:)) ?? .newest
     }
 }
