@@ -38,7 +38,7 @@ struct PairQuestionView: View {
                 .multilineTextAlignment(.center)
         case .audio:
             SpeakButton(word: question.word)
-                .task { Speaker.shared.speak(question.word) }
+                .task { Speaker.shared.speak(question.word, ignoringMuteSwitch: false) }
         }
     }
 }

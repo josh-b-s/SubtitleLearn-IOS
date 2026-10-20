@@ -20,6 +20,10 @@ struct ChoiceQuestionView: View {
                         .font(.title3)
                         .foregroundStyle(.secondary)
                 }
+                if question.direction == .chineseToEnglish {
+                    SpeakButton(word: question.prompt)
+                        .task { Speaker.shared.speak(question.prompt, ignoringMuteSwitch: false) }
+                }
                 Text(question.direction == .chineseToEnglish ? "What does this mean?" : "Which word means this?")
                     .font(.headline)
                     .padding(.top, 4)
@@ -33,7 +37,11 @@ struct ChoiceQuestionView: View {
                         subtitle: question.choicePinyin[choice],
                         state: .resolve(choice: choice, answer: question.answer, selection: selection, revealed: isRevealed),
                         isLocked: isRevealed
-                    ) { selection = choice }
+                    ) {
+                        selection = choice
+                        // Only where the pinyin is on screen too, so hearing it gives nothing away.
+                        if question.choicePinyin[choice] != nil { Speaker.shared.speak(choice, ignoringMuteSwitch: true) }
+                    }
                 }
             }
         }

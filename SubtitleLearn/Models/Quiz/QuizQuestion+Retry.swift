@@ -7,7 +7,8 @@ extension QuizQuestion {
         switch kind {
         case .choice(let q):
             reordered = .choice(ChoiceQuestion(direction: q.direction, prompt: q.prompt, hint: q.hint,
-                                               choices: q.choices.shuffled(), answer: q.answer))
+                                               choices: q.choices.shuffled(), answer: q.answer,
+                                               choicePinyin: q.choicePinyin))
         case .pair(let q):
             reordered = .pair(PairQuestion(prompt: q.prompt, word: q.word, meaning: q.meaning,
                                            pinyin: q.pinyin.shuffled(), second: q.second.shuffled()))

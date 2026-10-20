@@ -11,11 +11,8 @@ enum PairQuestionBuilder {
         let wrongSecond = picker.pick(for: target)
         guard wrongPinyin.count == 3, wrongSecond.count == 3 else { return nil }
 
-        let pinyin = QuizColumn(
-            title: "PINYIN",
-            choices: ([target] + wrongPinyin).map(\.pinyin).shuffled(),
-            answer: target.pinyin
-        )
+        // The listening question plays the prompt, so its options stay silent.
+        let pinyin = QuizColumn.pinyin(target: target, wrong: wrongPinyin, speaks: variant != .audio)
         let second: QuizColumn
         let prompt: PairQuestion.Prompt
         switch variant {

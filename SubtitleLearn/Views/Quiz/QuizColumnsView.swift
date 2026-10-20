@@ -34,7 +34,10 @@ struct QuizColumnsView: View {
                     state: .resolve(choice: choice, answer: column.answer, selection: selection.wrappedValue, revealed: isRevealed),
                     font: .body,
                     isLocked: isRevealed
-                ) { selection.wrappedValue = choice }
+                ) {
+                    selection.wrappedValue = choice
+                    if let word = column.spoken[choice] { Speaker.shared.speak(word, ignoringMuteSwitch: true) }
+                }
             }
         }
         .frame(maxWidth: .infinity, alignment: .top)

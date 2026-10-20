@@ -17,6 +17,6 @@ struct ReplayClipButton: View {
 
     private var label: String {
         if player.failed { return "Can't play clip" }
-        return player.isPlaying ? "Playing…" : "Replay audio"
+        return player.isPlaying ? "Playing…" : "Replay from video"
     }
 }
