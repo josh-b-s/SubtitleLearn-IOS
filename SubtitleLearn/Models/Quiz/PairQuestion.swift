@@ -1,10 +1,12 @@
 import Foundation
 
-/// Level 2: pick the pinyin and the meaning that both belong to one word.
+/// Level 2 and the level 3 listening question: pick the pinyin and a second part that both belong to one word.
 struct PairQuestion {
-    let word: String
-    let pinyinChoices: [String]
-    let meaningChoices: [String]
-    let pinyinAnswer: String
-    let meaningAnswer: String
+    enum Prompt { case word, meaning, audio }
+
+    let prompt: Prompt
+    let word: String      // the word being asked about, spoken for audio prompts
+    let meaning: String   // shown as the prompt for .meaning
+    let pinyin: QuizColumn
+    let second: QuizColumn    // the meaning, or the word when the prompt is the meaning
 }

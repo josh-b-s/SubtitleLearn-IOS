@@ -1,6 +1,6 @@
 import Foundation
 
-/// Level 3: turns a cached sentence into a blank plus tappable tokens, graded locally.
+/// Level 3: turns a cached sentence into a blank plus tappable tokens, with pinyin and meaning options. Graded locally.
 enum ClozeQuestionBuilder {
     static func make(
         for word: SavedWord,
@@ -13,8 +13,12 @@ enum ClozeQuestionBuilder {
         // The target must be a whole word here, not part of a longer one.
         guard dictionary.segment(sentence.sentence).filter({ $0 == word.word }).count == 1 else { return nil }
 
-        let wrong = picker.pick(for: Candidate(word))
-        guard wrong.count == 3 else { return nil }
+        let target = Candidate(word)
+        guard !target.meanings.isEmpty, !target.pinyin.isEmpty else { return nil }
+        let wrong = picker.pick(for: target)
+        let wrongPinyin = picker.pick(for: target)
+        let wrongMeaning = picker.pick(for: target)
+        guard wrong.count == 3, wrongPinyin.count == 3, wrongMeaning.count == 3 else { return nil }
 
         let before = dictionary.tokens(for: String(sentence.sentence[..<range.lowerBound]))
         let after = dictionary.tokens(for: String(sentence.sentence[range.upperBound...]))
@@ -25,7 +29,9 @@ enum ClozeQuestionBuilder {
             after: after,
             translation: sentence.translation,
             choices: ([word.word] + wrong.map(\.word)).shuffled(),
-            answer: word.word
+            answer: word.word,
+            pinyin: QuizColumn(title: "PINYIN", choices: ([target] + wrongPinyin).map(\.pinyin).shuffled(), answer: target.pinyin),
+            meaning: QuizColumn(title: "MEANING", choices: ([target] + wrongMeaning).map(\.meaningText).shuffled(), answer: target.meaningText)
         )
     }
 }

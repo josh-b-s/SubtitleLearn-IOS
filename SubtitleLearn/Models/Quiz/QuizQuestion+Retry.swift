@@ -9,12 +9,12 @@ extension QuizQuestion {
             reordered = .choice(ChoiceQuestion(direction: q.direction, prompt: q.prompt, hint: q.hint,
                                                choices: q.choices.shuffled(), answer: q.answer))
         case .pair(let q):
-            reordered = .pair(PairQuestion(word: q.word, pinyinChoices: q.pinyinChoices.shuffled(),
-                                           meaningChoices: q.meaningChoices.shuffled(),
-                                           pinyinAnswer: q.pinyinAnswer, meaningAnswer: q.meaningAnswer))
+            reordered = .pair(PairQuestion(prompt: q.prompt, word: q.word, meaning: q.meaning,
+                                           pinyin: q.pinyin.shuffled(), second: q.second.shuffled()))
         case .cloze(let q):
             reordered = .cloze(ClozeQuestion(before: q.before, after: q.after, translation: q.translation,
-                                             choices: q.choices.shuffled(), answer: q.answer))
+                                             choices: q.choices.shuffled(), answer: q.answer,
+                                             pinyin: q.pinyin.shuffled(), meaning: q.meaning.shuffled()))
         }
         return QuizQuestion(word: word, level: level, kind: reordered, isRetry: true)
     }

@@ -44,22 +44,31 @@ struct QuizSessionBuilder {
         dictionary: ChineseDictionary?,
         sentences: [ClozeSentence]
     ) -> QuizQuestion? {
-        if word.level >= 3, let dictionary,
-           let cloze = sentences.shuffled().lazy.compactMap({
-               ClozeQuestionBuilder.make(for: word, sentence: $0, picker: picker, dictionary: dictionary)
-           }).first {
-            return QuizQuestion(word: word.word, level: 3, kind: .cloze(cloze))
+        // Each level asks two question types. The streak says which: 0 is the first, 1 the second.
+        let second = word.levelStreak > 0
+        if word.level >= 3 {
+            if second, let dictionary,
+               let cloze = sentences.shuffled().lazy.compactMap({
+                   ClozeQuestionBuilder.make(for: word, sentence: $0, picker: picker, dictionary: dictionary)
+               }).first {
+                return QuizQuestion(word: word.word, level: 3, kind: .cloze(cloze))
+            }
+            if !second, let listening = PairQuestionBuilder.make(for: word, variant: .audio, picker: picker) {
+                return QuizQuestion(word: word.word, level: 3, kind: .pair(listening))
+            }
         }
-        if word.level >= 2, let pair = PairQuestionBuilder.make(for: word, picker: picker) {
+        if word.level >= 2,
+           let pair = PairQuestionBuilder.make(for: word, variant: second ? .meaningToWord : .wordToMeaning, picker: picker) {
             return QuizQuestion(word: word.word, level: 2, kind: .pair(pair))
         }
-        guard let choice = ChoiceQuestionBuilder.make(for: word, picker: picker) else { return nil }
+        let direction: ChoiceQuestion.Direction = second ? .englishToChinese : .chineseToEnglish
+        guard let choice = ChoiceQuestionBuilder.make(for: word, direction: direction, picker: picker) else { return nil }
         return QuizQuestion(word: word.word, level: 1, kind: .choice(choice))
     }
 
-    /// Cached sentences, fetching only for level 3 words that have none yet.
+    /// Cached sentences, fetching only for words at the cloze step of level 3 that have none yet.
     private func levelThreeSentences(for words: [SavedWord]) async -> ([String: [ClozeSentence]], String?) {
-        let needed = words.filter { $0.level >= 3 }
+        let needed = words.filter { $0.level >= 3 && $0.levelStreak > 0 }
         guard !needed.isEmpty else { return ([:], nil) }
 
         let cache = ClozeCache.all()
@@ -76,7 +85,7 @@ struct QuizSessionBuilder {
             ClozeCache.store(fetched)
             return (ClozeCache.all(), nil)
         } catch {
-            return (cache, "Couldn't reach Gemini, so some level 3 words got easier questions.")
+            return (cache, "Some level 3 words got easier questions. \(String(error.localizedDescription.prefix(160)))")
         }
     }
 }

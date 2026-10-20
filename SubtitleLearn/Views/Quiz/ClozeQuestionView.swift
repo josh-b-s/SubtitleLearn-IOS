@@ -1,9 +1,11 @@
 import SwiftUI
 
-/// Level 3 body: sentence with a blank, tappable words, and a word bank.
+/// Level 3 body: sentence with a blank, tappable words, a word bank, then pinyin and meaning options.
 struct ClozeQuestionView: View {
     let question: ClozeQuestion
     @Binding var selection: String?
+    @Binding var pinyin: String?
+    @Binding var meaning: String?
     let isRevealed: Bool
     @State private var tapped: WordToken?
     @ScaledMetric(relativeTo: .title) private var tokenSize = 28
@@ -11,7 +13,7 @@ struct ClozeQuestionView: View {
     var body: some View {
         VStack(spacing: 20) {
             QuizPromptCard(alignment: .leading) {
-                Text("Fill in the blank")
+                Text("Fill in the blank, then pick its pinyin and meaning")
                     .font(.headline)
 
                 FlowLayout(spacing: 6) {
@@ -38,6 +40,12 @@ struct ClozeQuestionView: View {
                     ) { selection = choice }
                 }
             }
+
+            QuizColumnsView(
+                first: question.pinyin, second: question.meaning,
+                firstSelection: $pinyin, secondSelection: $meaning,
+                isRevealed: isRevealed
+            )
         }
     }
 

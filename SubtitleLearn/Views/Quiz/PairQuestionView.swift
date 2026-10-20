@@ -1,53 +1,44 @@
 import SwiftUI
 
-/// Level 2 body: pinyin options on the left, meaning options on the right.
+/// Level 2 and listening body: pinyin options on the left, meaning or word options on the right.
 struct PairQuestionView: View {
     let question: PairQuestion
     @Binding var pinyin: String?
-    @Binding var meaning: String?
+    @Binding var second: String?
     let isRevealed: Bool
 
     @ScaledMetric(relativeTo: .largeTitle) private var wordSize = 52
-    @Environment(\.dynamicTypeSize) private var typeSize
-
-    /// Side by side normally, stacked once text is too large for two narrow columns.
-    private var columnLayout: AnyLayout {
-        typeSize.isAccessibilitySize
-            ? AnyLayout(VStackLayout(alignment: .leading, spacing: 12))
-            : AnyLayout(HStackLayout(alignment: .top, spacing: 12))
-    }
+    @ScaledMetric(relativeTo: .title) private var meaningSize = 28
 
     var body: some View {
         VStack(spacing: 20) {
             QuizPromptCard {
-                Text(question.word)
-                    .font(.system(size: wordSize, weight: .bold))
-                Text("Pick the pinyin and the meaning")
+                prompt
+                Text("Pick the pinyin and the \(question.second.title.lowercased())")
                     .font(.headline)
                     .padding(.top, 4)
             }
 
-            columnLayout {
-                column("PINYIN", choices: question.pinyinChoices, answer: question.pinyinAnswer, selection: $pinyin)
-                column("MEANING", choices: question.meaningChoices, answer: question.meaningAnswer, selection: $meaning)
-            }
+            QuizColumnsView(
+                first: question.pinyin, second: question.second,
+                firstSelection: $pinyin, secondSelection: $second,
+                isRevealed: isRevealed
+            )
         }
     }
 
-    private func column(_ title: String, choices: [String], answer: String, selection: Binding<String?>) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text(title)
-                .font(.caption.weight(.semibold))
-                .foregroundStyle(.secondary)
-            ForEach(choices, id: \.self) { choice in
-                OptionButton(
-                    text: choice,
-                    state: .resolve(choice: choice, answer: answer, selection: selection.wrappedValue, revealed: isRevealed),
-                    font: .body,
-                    isLocked: isRevealed
-                ) { selection.wrappedValue = choice }
-            }
+    @ViewBuilder private var prompt: some View {
+        switch question.prompt {
+        case .word:
+            Text(question.word)
+                .font(.system(size: wordSize, weight: .bold))
+        case .meaning:
+            Text(question.meaning)
+                .font(.system(size: meaningSize, weight: .bold))
+                .multilineTextAlignment(.center)
+        case .audio:
+            SpeakButton(word: question.word)
+                .task { Speaker.shared.speak(question.word) }
         }
-        .frame(maxWidth: .infinity, alignment: .top)
     }
 }

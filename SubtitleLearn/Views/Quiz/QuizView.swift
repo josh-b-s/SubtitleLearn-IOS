@@ -112,7 +112,7 @@ struct QuizView: View {
                         question: question,
                         selectedChoice: $viewModel.selectedChoice,
                         selectedPinyin: $viewModel.selectedPinyin,
-                        selectedMeaning: $viewModel.selectedMeaning,
+                        selectedSecond: $viewModel.selectedSecond,
                         isRevealed: viewModel.feedback != nil
                     )
                     .id(question.id)

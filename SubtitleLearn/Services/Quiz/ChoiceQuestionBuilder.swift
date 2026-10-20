@@ -1,15 +1,15 @@
 import Foundation
 
-/// Level 1, built locally. Direction is random: zh to en or en to zh.
+/// Level 1, built locally.
 enum ChoiceQuestionBuilder {
-    static func make(for word: SavedWord, picker: DistractorPicker) -> ChoiceQuestion? {
+    static func make(for word: SavedWord, direction: ChoiceQuestion.Direction, picker: DistractorPicker) -> ChoiceQuestion? {
         let target = Candidate(word)
         guard !target.meanings.isEmpty else { return nil }
         let wrong = picker.pick(for: target)
         guard wrong.count == 3 else { return nil }
         let all = [target] + wrong
 
-        if Bool.random() {
+        if direction == .chineseToEnglish {
             return ChoiceQuestion(direction: .chineseToEnglish, prompt: target.word, hint: target.pinyin,
                                   choices: all.map(\.meaningText).shuffled(), answer: target.meaningText)
         }
