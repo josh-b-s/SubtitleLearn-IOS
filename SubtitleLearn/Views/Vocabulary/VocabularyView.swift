@@ -4,6 +4,7 @@ import SwiftData
 struct VocabularyView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var words: [SavedWord]
+    @Query private var reviewLogs: [ReviewLog]
     @State private var settings = AppSettings.shared
 
     @State private var query = ""
@@ -20,7 +21,7 @@ struct VocabularyView: View {
                 && (!dueOnly || (!word.isMastered && word.isDue))
                 && word.matches(query)
         }
-        return settings.vocabularySort.sorted(matching)
+        return settings.vocabularySort.sorted(matching, logs: reviewLogs)
     }
 
     private var emptyDescription: String {
