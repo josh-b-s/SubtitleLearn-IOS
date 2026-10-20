@@ -12,6 +12,7 @@ struct ScreenShareView: View {
     @State private var viewModel = ScreenShareViewModel()
     @StateObject private var pip = PipController()
     @State private var pickerTrigger = 0
+    @State private var showTranscript = false
 
     private let extensionID = BroadcastPickerButton.embeddedExtensionBundleID
 
@@ -37,6 +38,15 @@ struct ScreenShareView: View {
             }
             .background(Color(.systemGroupedBackground))
             .navigationTitle("Screen Share")
+            .toolbar {
+                if !viewModel.transcript.lines.isEmpty {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button { showTranscript = true } label: {
+                            Label("Transcript", systemImage: "text.alignleft")
+                        }
+                    }
+                }
+            }
         }
         .overlay { PipLayerHost(layer: pip.displayLayer) }
         .onAppear {
@@ -61,6 +71,9 @@ struct ScreenShareView: View {
         }
         .sheet(item: $summary) { item in
             SessionSummaryView(summary: item, onReview: { startReview(item) }, onDone: { summary = nil })
+        }
+        .sheet(isPresented: $showTranscript) {
+            TranscriptView(lines: viewModel.transcript.lines)
         }
         .alert("Screen Share", isPresented: errorBinding) {
             Button("OK", role: .cancel) {}

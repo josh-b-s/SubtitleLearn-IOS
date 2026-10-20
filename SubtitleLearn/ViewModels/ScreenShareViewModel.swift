@@ -18,6 +18,8 @@ final class ScreenShareViewModel {
     private(set) var isWaitingForBroadcast = false
     /// Set when a session ends with words heard. The view shows the summary, then clears it.
     private(set) var endedSession: SessionResult?
+    /// Lines heard in the current or most recent session. Stays on disk until the next session starts.
+    private(set) var transcript = SessionTranscriptStore.load()
 
     /// Longest unbroken speech kept in one subtitle. Longer is closed off and a new one starts.
     private static let maxSegmentCharacters = 40
@@ -31,6 +33,7 @@ final class ScreenShareViewModel {
     @ObservationIgnored private var dictionary: ChineseDictionary?
     @ObservationIgnored private var runID = UUID()
     @ObservationIgnored private var isStarting = false
+    @ObservationIgnored private var pendingLine = ""
 
     /// For screen audio this only begins waiting; the view then opens the system broadcast picker.
     func start() async {
@@ -50,7 +53,7 @@ final class ScreenShareViewModel {
         switch source {
         case .mock:
             mock.start(dictionary: dictionary, into: subtitles)
-            isRunning = true
+            didStartRunning()
         case .microphone:
             await startMicrophone()
         case .screen:
@@ -62,6 +65,8 @@ final class ScreenShareViewModel {
         guard isRunning || isWaitingForBroadcast else { return }
         let wasScreen = source == .screen
         tracker.flush()
+        appendLine(pendingLine)
+        pendingLine = ""
         let heard = tracker.entries
         tracker.reset()
         if !heard.isEmpty { endedSession = SessionResult(entries: heard, clips: clipRecorder.clips) }
@@ -98,7 +103,7 @@ final class ScreenShareViewModel {
                     Task { @MainActor in self?.handleFailure(error, run: run) }
                 }
             )
-            isRunning = true
+            didStartRunning()
         } catch {
             errorMessage = error.localizedDescription
         }
@@ -152,7 +157,7 @@ final class ScreenShareViewModel {
             return
         }
         isWaitingForBroadcast = false
-        isRunning = true
+        didStartRunning()
     }
 
     // MARK: - Results
@@ -161,8 +166,34 @@ final class ScreenShareViewModel {
         guard run == runID, let dictionary else { return }
         let tokens = dictionary.tokens(for: text)
         tracker.update(tokens, isFinal: isFinal)
+        recordTranscript(text, isFinal: isFinal)
         clipRecorder.captureIfAbsent(tokens.filter { !$0.meanings.isEmpty }.map(\.text))
         subtitles.update(segment: tokens, isFinal: isFinal)
+    }
+
+    // MARK: - Transcript
+
+    private func didStartRunning() {
+        isRunning = true
+        transcript = SessionTranscript()
+        pendingLine = ""
+        SessionTranscriptStore.save(transcript)
+    }
+
+    private func recordTranscript(_ text: String, isFinal: Bool) {
+        guard isFinal else {
+            pendingLine = text
+            return
+        }
+        pendingLine = ""
+        appendLine(text)
+    }
+
+    private func appendLine(_ text: String) {
+        let line = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !line.isEmpty else { return }
+        transcript.lines.append(line)
+        SessionTranscriptStore.save(transcript)
     }
 
     private func handleFailure(_ error: Error, run: UUID) {
