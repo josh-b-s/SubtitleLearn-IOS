@@ -1,16 +1,14 @@
 import Foundation
 import Observation
 
-/// Small UserDefaults-backed settings store. The Gemini key is stored in plain
-/// UserDefaults for simplicity (fine for a student project, but move it to
-/// the Keychain before shipping anything real).
+/// Small UserDefaults-backed settings store. The Gemini key lives in the Keychain.
 @MainActor
 @Observable
 final class AppSettings {
     static let shared = AppSettings()
 
     var geminiAPIKey: String {
-        didSet { UserDefaults.standard.set(geminiAPIKey, forKey: Self.keyDefaultsKey) }
+        didSet { KeychainStore.write(geminiAPIKey, for: Self.keyDefaultsKey) }
     }
     var questionsPerQuiz: Int {
         didSet { UserDefaults.standard.set(questionsPerQuiz, forKey: Self.countDefaultsKey) }
@@ -45,7 +43,12 @@ final class AppSettings {
     private static let countDefaultsKey = "questionsPerQuiz"
 
     private init() {
-        geminiAPIKey = UserDefaults.standard.string(forKey: Self.keyDefaultsKey) ?? ""
+        // Older builds kept the key in UserDefaults. Move it once.
+        if let legacy = UserDefaults.standard.string(forKey: Self.keyDefaultsKey) {
+            KeychainStore.write(legacy, for: Self.keyDefaultsKey)
+            UserDefaults.standard.removeObject(forKey: Self.keyDefaultsKey)
+        }
+        geminiAPIKey = KeychainStore.read(Self.keyDefaultsKey) ?? ""
         let saved = UserDefaults.standard.integer(forKey: Self.countDefaultsKey)
         questionsPerQuiz = saved > 0 ? saved : 8
         preferOnDeviceSpeech = UserDefaults.standard.object(forKey: Self.onDeviceDefaultsKey) as? Bool ?? true

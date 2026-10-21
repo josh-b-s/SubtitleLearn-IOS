@@ -42,7 +42,7 @@ struct SettingsView: View {
                 } header: {
                     Text("Quiz")
                 } footer: {
-                    Text("Only used to write example sentences for level 3 questions, then cached. Levels 1 and 2 work without a key. Get a key at aistudio.google.com/apikey. Stored on-device only.")
+                    Text("Only used to write example sentences for level 3 questions, then cached. Each request sends the words being quizzed, with their pinyin and meanings, to Google's Gemini API. Nothing else leaves your device. Levels 1 and 2 work without a key. Get a key at aistudio.google.com/apikey. The key is kept in the Keychain on this device.")
                 }
 
                 Section {

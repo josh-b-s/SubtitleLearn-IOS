@@ -125,7 +125,7 @@ struct ScreenShareView: View {
 
     private var sourcePicker: some View {
         Picker("Audio source", selection: $viewModel.source) {
-            ForEach(ScreenShareViewModel.Source.allCases) { Text($0.rawValue).tag($0) }
+            ForEach(ScreenShareViewModel.Source.available) { Text($0.rawValue).tag($0) }
         }
         .pickerStyle(.segmented)
         .disabled(isActive)

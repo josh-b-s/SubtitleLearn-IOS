@@ -10,6 +10,15 @@ final class ScreenShareViewModel {
         case microphone = "Mic"
         case mock = "Mock"
         var id: String { rawValue }
+
+        /// The mock feed is a development aid and is not offered in release builds.
+        static var available: [Source] {
+            #if DEBUG
+            allCases
+            #else
+            allCases.filter { $0 != .mock }
+            #endif
+        }
     }
 
     var source: Source = .screen

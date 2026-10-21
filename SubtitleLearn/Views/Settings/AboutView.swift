@@ -16,8 +16,6 @@ struct AboutView: View {
 
             Section("Author") {
                 LabeledContent("Name", value: "Josh Brian Saputra")
-                LabeledContent("Student ID", value: "34672087")
-                LabeledContent("Unit", value: "FIT3178 iOS App Development")
             }
 
             Section("Acknowledgements") {
