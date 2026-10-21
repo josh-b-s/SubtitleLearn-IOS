@@ -3,6 +3,7 @@ import SwiftUI
 struct SettingsView: View {
     @State private var settings = AppSettings.shared
     @State private var apiKeyDraft = AppSettings.shared.geminiAPIKey
+    @AppStorage(OnboardingView.seenKey) private var hasSeenOnboarding = true
 
     var body: some View {
         NavigationStack {
@@ -50,6 +51,7 @@ struct SettingsView: View {
                 }
 
                 Section {
+                    Button("Show app introduction") { hasSeenOnboarding = false }
                     NavigationLink("About") { AboutView() }
                 }
             }

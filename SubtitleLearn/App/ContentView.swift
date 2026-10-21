@@ -4,8 +4,13 @@ struct ContentView: View {
     @State private var selection: Tab = .translate
     @State private var pendingReview: [String]?
     @State private var settings = AppSettings.shared
+    @AppStorage(OnboardingView.seenKey) private var hasSeenOnboarding = false
 
     enum Tab { case screenShare, translate, vocabulary, quiz, settings }
+
+    private var showOnboarding: Binding<Bool> {
+        Binding(get: { !hasSeenOnboarding }, set: { if !$0 { hasSeenOnboarding = true } })
+    }
 
     var body: some View {
         TabView(selection: $selection) {
@@ -33,6 +38,9 @@ struct ContentView: View {
                 .tag(Tab.settings)
         }
         .preferredColorScheme(settings.appearance.colorScheme)
+        .fullScreenCover(isPresented: showOnboarding) {
+            OnboardingView { hasSeenOnboarding = true }
+        }
     }
 }
 
