@@ -21,9 +21,9 @@ struct ListeningBar: View {
                 if hasTranscript {
                     Toggle(isOn: $hideLearned) {
                         Label("Hide learned", systemImage: "eye.slash")
+                            .frame(minHeight: 30)
                     }
                     .toggleStyle(.button)
-                    .controlSize(.small)
                     .accessibilityHint("Hides the pinyin and meaning of words you already know")
                 }
             }

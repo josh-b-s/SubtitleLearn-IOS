@@ -12,6 +12,7 @@ struct WordDetailSheet: View {
     @State private var contentHeight: CGFloat = 0
     @State private var buttonHeight: CGFloat = 0
     @State private var bottomInset: CGFloat = 0
+    @State private var confirmingRemove = false
     @ScaledMetric(relativeTo: .largeTitle) private var wordSize = 52
 
     var body: some View {
@@ -47,7 +48,7 @@ struct WordDetailSheet: View {
             }
             .scrollBounceBehavior(.basedOnSize)
 
-            Button(action: onToggleSave) {
+            Button { if isSaved { confirmingRemove = true } else { onToggleSave() } } label: {
                 Text(isSaved ? "Remove from Vocabulary" : "Save to Vocabulary")
                     .font(.title3.weight(.semibold))
                     .frame(maxWidth: .infinity, minHeight: 36)
@@ -57,6 +58,11 @@ struct WordDetailSheet: View {
             .controlSize(.large)
             .tint(isSaved ? .red : .accentColor)
             .accessibilityHint(isSaved ? "Deletes this word and its progress" : "Adds this word to your quiz")
+            .confirmationDialog("Remove \(token.text)?", isPresented: $confirmingRemove, titleVisibility: .visible) {
+                Button("Remove", role: .destructive, action: onToggleSave)
+            } message: {
+                Text("Its level and review history are deleted too.")
+            }
             .padding(.bottom, 8)
             .measureHeight(into: $buttonHeight)
         }

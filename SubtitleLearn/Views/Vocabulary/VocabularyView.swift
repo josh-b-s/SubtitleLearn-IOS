@@ -12,6 +12,7 @@ struct VocabularyView: View {
     @State private var dueOnly = false
     @State private var selected: SavedWord?
     @State private var route: Route?
+    @State private var pendingDelete: [SavedWord] = []
 
     private enum Route: Hashable { case dictionary, addKnown }
 
@@ -71,6 +72,10 @@ struct VocabularyView: View {
         }
     }
 
+    private var deleteTitle: String {
+        pendingDelete.count == 1 ? "Delete this word?" : "Delete \(pendingDelete.count) words?"
+    }
+
     private var sortMenu: some View {
         Menu {
             Picker("Sort by", selection: $settings.vocabularySort) {
@@ -104,8 +109,18 @@ struct VocabularyView: View {
                 }
                 .onDelete { offsets in
                     let current = filtered
-                    offsets.forEach { modelContext.delete(current[$0]) }
+                    pendingDelete = offsets.map { current[$0] }
                 }
+            }
+            .confirmationDialog(
+                deleteTitle,
+                isPresented: Binding(get: { !pendingDelete.isEmpty }, set: { if !$0 { pendingDelete = [] } }),
+                titleVisibility: .visible,
+                presenting: pendingDelete.isEmpty ? nil : pendingDelete
+            ) { doomed in
+                Button("Delete", role: .destructive) { doomed.forEach(modelContext.delete) }
+            } message: { _ in
+                Text("Their level and review history are deleted too.")
             }
             .overlay {
                 if filtered.isEmpty {
