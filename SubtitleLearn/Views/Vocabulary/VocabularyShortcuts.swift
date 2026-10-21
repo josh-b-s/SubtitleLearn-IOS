@@ -6,7 +6,19 @@ struct VocabularyShortcuts: View {
     let onAddKnown: () -> Void
 
     var body: some View {
-        HStack(spacing: 12) {
+        ViewThatFits(in: .horizontal) {
+            buttons(HStackLayout(spacing: 12))
+            buttons(VStackLayout(spacing: 12))
+        }
+        .buttonStyle(.bordered)
+        .controlSize(.large)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 8)
+        .background(Color(.systemGroupedBackground))
+    }
+
+    private func buttons(_ layout: some Layout) -> some View {
+        layout {
             Button(action: onDictionary) {
                 Label("Dictionary", systemImage: "character.book.closed")
                     .frame(maxWidth: .infinity)
@@ -16,10 +28,5 @@ struct VocabularyShortcuts: View {
                     .frame(maxWidth: .infinity)
             }
         }
-        .buttonStyle(.bordered)
-        .controlSize(.large)
-        .padding(.horizontal, 16)
-        .padding(.vertical, 8)
-        .background(Color(.systemGroupedBackground))
     }
 }

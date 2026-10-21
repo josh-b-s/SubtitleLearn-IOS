@@ -6,6 +6,8 @@ struct QuizProgressHeader: View {
     let total: Int
     let fraction: Double
 
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     var body: some View {
         VStack(spacing: 8) {
             HStack {
@@ -18,7 +20,10 @@ struct QuizProgressHeader: View {
                     .foregroundStyle(.secondary)
             }
             ProgressView(value: fraction)
-                .animation(.easeOut(duration: 0.25), value: fraction)
+                .animation(reduceMotion ? nil : .easeOut(duration: 0.25), value: fraction)
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Quiz progress")
+        .accessibilityValue("Question \(index) of \(total)")
     }
 }

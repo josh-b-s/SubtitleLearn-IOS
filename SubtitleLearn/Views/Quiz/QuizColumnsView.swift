@@ -28,6 +28,7 @@ struct QuizColumnsView: View {
             Text(column.title)
                 .font(.caption.weight(.semibold))
                 .foregroundStyle(.secondary)
+                .accessibilityAddTraits(.isHeader)
             ForEach(column.choices, id: \.self) { choice in
                 OptionButton(
                     text: choice,

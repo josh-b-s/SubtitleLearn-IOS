@@ -79,10 +79,12 @@ struct VocabularyView: View {
         } label: {
             Image(systemName: "arrow.up.arrow.down")
                 .font(.subheadline.weight(.semibold))
-                .frame(width: 36, height: 36)
+                .frame(width: 44, height: 44)
                 .background(Circle().fill(Color(.secondarySystemGroupedBackground)))
         }
         .accessibilityLabel("Sort")
+        .accessibilityValue(settings.vocabularySort.rawValue)
+        .accessibilityHint("Changes the order of the word list")
     }
 
     private var list: some View {

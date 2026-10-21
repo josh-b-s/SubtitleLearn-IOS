@@ -44,6 +44,7 @@ struct ScreenShareView: View {
                         Button { showTranscript = true } label: {
                             Label("Transcript", systemImage: "text.alignleft")
                         }
+                        .accessibilityHint("Opens everything heard so far, line by line")
                     }
                 }
             }
@@ -108,6 +109,7 @@ struct ScreenShareView: View {
                 .foregroundStyle(.white.opacity(0.5))
                 .frame(maxHeight: .infinity, alignment: .top)
                 .padding(12)
+                .accessibilityHidden(true)
             PipSubtitleView(model: viewModel.subtitles)
                 .frame(height: PipSubtitleView.pipSize.height)
                 .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
@@ -117,6 +119,8 @@ struct ScreenShareView: View {
         .frame(maxWidth: .infinity)
         .frame(height: 420)
         .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("Live subtitles preview")
     }
 
     private var sourcePicker: some View {
@@ -125,6 +129,7 @@ struct ScreenShareView: View {
         }
         .pickerStyle(.segmented)
         .disabled(isActive)
+        .accessibilityHint("Chooses where the audio comes from. Locked while subtitles are running.")
     }
 
     private var pipButton: some View {
@@ -147,6 +152,7 @@ struct ScreenShareView: View {
         .controlSize(.large)
         .tint(isActive ? .red : .accentColor)
         .disabled(!canStart)
+        .accessibilityHint(isActive ? "Stops the live subtitles" : "Starts live subtitles in a Picture in Picture window")
         .background {
             BroadcastPickerButton(extensionBundleID: extensionID, trigger: pickerTrigger)
                 .frame(width: 1, height: 1)
@@ -162,6 +168,7 @@ struct ScreenShareView: View {
         .buttonStyle(.bordered)
         .buttonBorderShape(.roundedRectangle(radius: 18))
         .controlSize(.large)
+        .accessibilityHint("Reopens the floating subtitle window")
     }
 
     private var canStart: Bool {

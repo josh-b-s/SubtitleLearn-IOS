@@ -38,6 +38,7 @@ struct DictionaryResultsList: View {
                     )
                 }
                 .buttonStyle(.plain)
+                .accessibilityHint("Opens the word details")
             }
         }
     }

@@ -44,9 +44,11 @@ struct ReviewHeatmap: View {
                 }
             }
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel("Review activity, last \(StatsCalculator.heatmapDays) days: \(activeDays) days with reviews")
+            .accessibilityLabel("Review activity, last \(StatsCalculator.heatmapDays) days")
+            .accessibilityValue("\(activeDays) days with reviews, \(counts.values.reduce(0, +)) reviews in total")
 
             legend
+                .accessibilityHidden(true)
         }
     }
 

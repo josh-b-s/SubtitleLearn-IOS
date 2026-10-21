@@ -43,11 +43,13 @@ struct WordCard: View {
                     .font(.caption)
                     .foregroundStyle(Color.accentColor)
                     .padding(10)
+                    .accessibilityHidden(true)
             }
         }
         .contentShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
         .accessibilityElement(children: .combine)
+        .accessibilityValue(isSaved ? "Saved" : "Not saved")
         .accessibilityHint("Double tap for details and to save")
-        .accessibilityAddTraits(isSaved ? .isSelected : [])
+        .accessibilityAddTraits(.isButton)
     }
 }

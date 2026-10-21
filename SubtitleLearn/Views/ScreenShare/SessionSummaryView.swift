@@ -57,6 +57,7 @@ struct SessionSummaryView: View {
                 .buttonStyle(.borderedProminent)
                 .buttonBorderShape(.roundedRectangle(radius: 18))
                 .controlSize(.large)
+                .accessibilityHint("Starts a quiz on the words you heard most")
 
                 if !summary.unsavedTopWords.isEmpty {
                     let count = summary.unsavedTopWords.count
@@ -76,6 +77,7 @@ struct SessionSummaryView: View {
             Text(title)
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(.secondary)
+                .accessibilityAddTraits(.isHeader)
             content()
         }
         .padding(16)

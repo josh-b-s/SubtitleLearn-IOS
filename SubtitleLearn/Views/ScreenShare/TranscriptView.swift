@@ -51,6 +51,8 @@ struct TranscriptView: View {
                                 .onTapGesture { selectedToken = token }
                         }
                     }
+                    .accessibilityElement(children: .contain)
+                    .accessibilityLabel("Line \(index + 1)")
                 }
             }
             .padding(16)

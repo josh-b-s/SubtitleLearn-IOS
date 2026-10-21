@@ -50,7 +50,7 @@ struct ClozeQuestionView: View {
     }
 
     private var blank: some View {
-        let color: Color = isRevealed ? .green : (selection == nil ? .secondary : .accentColor)
+        let color: Color = isRevealed ? .successText : (selection == nil ? .secondary : .accentColor)
         return Text(isRevealed ? question.answer : (selection ?? "＿＿"))
             .font(.system(size: tokenSize, weight: .bold))
             .foregroundStyle(color)
@@ -58,6 +58,9 @@ struct ClozeQuestionView: View {
             .overlay(alignment: .bottom) {
                 Rectangle().frame(height: 2).foregroundStyle(isRevealed ? Color.green : Color.accentColor)
             }
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel("Blank in the sentence")
+            .accessibilityValue(isRevealed ? question.answer : (selection ?? "Empty"))
     }
 
     private func tokenButton(_ token: WordToken) -> some View {
@@ -65,6 +68,7 @@ struct ClozeQuestionView: View {
             Text(token.text).font(.system(size: tokenSize, weight: .medium))
         }
         .buttonStyle(.plain)
+        .accessibilityHint("Shows its pinyin and meaning")
     }
 
     @ViewBuilder
@@ -79,7 +83,7 @@ struct ClozeQuestionView: View {
         } else {
             Text("Tap a word for its pinyin and meaning")
                 .font(.footnote)
-                .foregroundStyle(.tertiary)
+                .foregroundStyle(.secondary)
         }
     }
 }

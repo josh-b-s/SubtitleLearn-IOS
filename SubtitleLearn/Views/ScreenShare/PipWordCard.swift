@@ -5,7 +5,7 @@ import SwiftUI
 struct PipWordCard: View {
     let token: WordToken
 
-    private static let blue = Color(red: 0, green: 0.478, blue: 1)
+    private static let blue = Color(red: 0, green: 0.35, blue: 0.85)
 
     var body: some View {
         VStack(alignment: .leading, spacing: 1) {
@@ -20,7 +20,7 @@ struct PipWordCard: View {
             if !token.meanings.isEmpty && !token.hideMeaning {
                 Text(token.meanings.prefix(2).joined(separator: " · "))
                     .font(.system(size: 11))
-                    .foregroundStyle(Color.gray)
+                    .foregroundStyle(Color(white: 0.35))
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
             }

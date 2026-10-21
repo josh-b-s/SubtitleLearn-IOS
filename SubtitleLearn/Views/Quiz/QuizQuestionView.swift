@@ -36,8 +36,10 @@ struct QuizQuestionView: View {
             if question.isRetry {
                 Text("TRY AGAIN")
                     .font(.caption.weight(.bold))
-                    .foregroundStyle(Color.orange)
+                    .foregroundStyle(Color.warningText)
             }
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityAddTraits(.isHeader)
     }
 }

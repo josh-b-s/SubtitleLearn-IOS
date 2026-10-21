@@ -24,8 +24,11 @@ struct MasteryFilterBar: View {
                 .font(.subheadline.weight(.semibold))
                 .padding(.horizontal, 16)
                 .padding(.vertical, 8)
+                .frame(minHeight: 44)
                 .foregroundStyle(isOn ? Color.white : Color.primary)
                 .background(Capsule().fill(isOn ? Color.accentColor : Color(.secondarySystemGroupedBackground)))
         }
+        .accessibilityAddTraits(isOn ? .isSelected : [])
+        .accessibilityHint("Filters the word list")
     }
 }

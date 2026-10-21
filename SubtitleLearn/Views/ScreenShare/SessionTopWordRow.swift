@@ -10,6 +10,14 @@ struct SessionTopWordRow: View {
     @ScaledMetric private var countWidth = 36
 
     var body: some View {
+        layout
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel("\(entry.token.text), \(entry.token.pinyin)")
+            .accessibilityValue("Heard \(entry.count) time\(entry.count == 1 ? "" : "s")")
+    }
+
+    @ViewBuilder
+    private var layout: some View {
         if typeSize.isAccessibilitySize {
             // The fixed word column would leave no room for the bar, so stack instead.
             VStack(alignment: .leading, spacing: 6) {

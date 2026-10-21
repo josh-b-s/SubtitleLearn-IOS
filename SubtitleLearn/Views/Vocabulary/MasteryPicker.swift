@@ -9,6 +9,7 @@ struct MasteryPicker: View {
             Text("MASTERY")
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(.secondary)
+                .accessibilityAddTraits(.isHeader)
 
             Picker("Mastery", selection: $level) {
                 Text("1").tag(1)
@@ -17,8 +18,11 @@ struct MasteryPicker: View {
                 Text("Mastered").tag(Mastery.masteredLevel)
             }
             .pickerStyle(.segmented)
+            .accessibilityValue(level == Mastery.masteredLevel ? "Mastered" : "Level \(level)")
+            .accessibilityHint(caption)
 
             Text(caption)
+                .accessibilityHidden(true)
                 .font(.footnote)
                 .foregroundStyle(.secondary)
         }

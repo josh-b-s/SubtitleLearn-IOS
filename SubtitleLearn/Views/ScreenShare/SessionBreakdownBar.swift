@@ -12,6 +12,7 @@ struct SessionBreakdownBar: View {
 
     @State private var revealed = false
     @Environment(\.dynamicTypeSize) private var typeSize
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private var legendLayout: AnyLayout {
         typeSize.isAccessibilitySize
@@ -43,7 +44,10 @@ struct SessionBreakdownBar: View {
                 legend(Self.newColor, "New", newWords)
             }
         }
-        .onAppear { withAnimation(.easeOut(duration: 0.8)) { revealed = true } }
+        .onAppear { withAnimation(reduceMotion ? nil : .easeOut(duration: 0.8)) { revealed = true } }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Word breakdown")
+        .accessibilityValue("\(alreadyKnown) already known, \(learning) learning, \(newWords) new")
     }
 
     private func segment(_ count: Int, _ color: Color, width: CGFloat) -> some View {

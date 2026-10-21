@@ -36,11 +36,13 @@ struct QuizView: View {
                     ToolbarItem(placement: .topBarTrailing) {
                         NavigationLink { StatsView() } label: { Image(systemName: "chart.bar.xaxis") }
                             .accessibilityLabel("Stats")
+                            .accessibilityHint("Shows your streak, accuracy and review history")
                     }
                 }
                 if viewModel.isInProgress {
                     ToolbarItem(placement: .topBarLeading) {
                         Button("Quit") { confirmingQuit = true }
+                            .accessibilityHint("Asks before leaving this quiz")
                     }
                 }
             }
@@ -105,7 +107,7 @@ struct QuizView: View {
             VStack(alignment: .leading, spacing: 20) {
                 QuizProgressHeader(index: viewModel.progressIndex, total: viewModel.total, fraction: viewModel.progressFraction)
                 if let note = viewModel.note {
-                    Text(note).font(.footnote).foregroundStyle(Color.orange)
+                    Text(note).font(.footnote).foregroundStyle(Color.warningText)
                 }
                 if let question = viewModel.shownQuestion {
                     QuizQuestionView(

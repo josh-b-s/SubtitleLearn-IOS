@@ -53,9 +53,12 @@ struct AddKnownWordView: View {
                 Text(match.word).font(.title2.weight(.bold))
                 Text(match.entry.pinyin).foregroundStyle(Color.accentColor)
                 Spacer()
-                Button { selected = nil } label: { Image(systemName: "xmark.circle.fill") }
-                    .foregroundStyle(.secondary)
-                    .accessibilityLabel("Clear selection")
+                Button { selected = nil } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .frame(minWidth: 44, minHeight: 44)
+                }
+                .foregroundStyle(.secondary)
+                .accessibilityLabel("Clear selection")
             }
 
             MasteryPicker(level: $level)
@@ -71,6 +74,7 @@ struct AddKnownWordView: View {
             .buttonStyle(.borderedProminent)
             .buttonBorderShape(.roundedRectangle(radius: 18))
             .controlSize(.large)
+            .accessibilityHint("Saves \(match.word) at level \(level == Mastery.masteredLevel ? "mastered" : String(level))")
         }
         .padding(16)
         .background(.bar)

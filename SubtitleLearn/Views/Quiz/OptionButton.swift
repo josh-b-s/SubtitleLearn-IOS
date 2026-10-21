@@ -56,16 +56,31 @@ struct OptionButton: View {
     }
 
     private var textColor: Color {
-        state == .correct || state == .wrong ? tint : .primary
+        switch state {
+        case .correct: .successText
+        case .wrong: .errorText
+        default: .primary
+        }
+    }
+
+    private var spokenState: String {
+        switch state {
+        case .idle: ""
+        case .selected: "Selected"
+        case .correct: "Correct answer"
+        case .wrong: "Wrong answer"
+        }
     }
 
     var body: some View {
-        Button(action: action) {
+        // Locked rows must also ignore VoiceOver activation, which skips hit testing.
+        Button { if !isLocked { action() } } label: {
             HStack(spacing: 12) {
                 if let letter {
                     Text(letter)
                         .font(.headline)
-                        .foregroundStyle(state == .idle ? Color.secondary : tint)
+                        .foregroundStyle(state == .idle ? Color.secondary : (state == .selected ? tint : textColor))
+                        .accessibilityHidden(true)
                 }
                 VStack(alignment: .leading, spacing: 2) {
                     Text(text)
@@ -74,7 +89,7 @@ struct OptionButton: View {
                     if let subtitle {
                         Text(subtitle)
                             .font(.subheadline)
-                            .foregroundStyle(state == .correct || state == .wrong ? tint.opacity(0.8) : Color.secondary)
+                            .foregroundStyle(state == .correct || state == .wrong ? textColor : Color.secondary)
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -82,6 +97,7 @@ struct OptionButton: View {
                     Image(systemName: icon)
                         .font(.title3)
                         .foregroundStyle(tint)
+                        .accessibilityHidden(true)
                 }
             }
             .padding(14)
@@ -92,6 +108,10 @@ struct OptionButton: View {
         }
         .buttonStyle(PressableButtonStyle())
         .allowsHitTesting(!isLocked)
+        .accessibilityLabel([letter, text, subtitle].compactMap { $0 }.joined(separator: ", "))
+        .accessibilityValue(spokenState)
+        .accessibilityHint(isLocked ? "" : "Double tap to choose this answer")
+        .accessibilityAddTraits(state == .idle ? [] : .isSelected)
         .sensoryFeedback(.selection, trigger: state == .selected)
     }
 }

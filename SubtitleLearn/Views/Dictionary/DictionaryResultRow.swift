@@ -35,5 +35,7 @@ struct DictionaryResultRow: View {
             }
         }
         .contentShape(Rectangle())
+        .accessibilityElement(children: .combine)
+        .accessibilityValue([isSaved ? "Saved" : nil, isSelected ? "Selected" : nil].compactMap { $0 }.joined(separator: ", "))
     }
 }

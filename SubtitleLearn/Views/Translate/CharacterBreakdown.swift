@@ -9,6 +9,7 @@ struct CharacterBreakdown: View {
             Text("CHARACTERS")
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(.secondary)
+                .accessibilityAddTraits(.isHeader)
 
             ForEach(glosses) { gloss in
                 HStack(alignment: .firstTextBaseline, spacing: 10) {
@@ -16,6 +17,7 @@ struct CharacterBreakdown: View {
                     Text(gloss.pinyin).foregroundStyle(Color.accentColor)
                     Text(gloss.meaning).foregroundStyle(.secondary)
                 }
+                .accessibilityElement(children: .combine)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)

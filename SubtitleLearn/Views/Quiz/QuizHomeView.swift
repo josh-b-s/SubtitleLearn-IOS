@@ -16,6 +16,7 @@ struct QuizHomeView: View {
 
                 VStack(alignment: .leading, spacing: 12) {
                     Text("History").font(.title3.weight(.bold))
+                        .accessibilityAddTraits(.isHeader)
                     if records.isEmpty {
                         Text("Quizzes you take show up here.").foregroundStyle(.secondary)
                     } else {
@@ -26,6 +27,7 @@ struct QuizHomeView: View {
                                 QuizHistoryCard(record: record)
                             }
                             .buttonStyle(.plain)
+                            .accessibilityHint("Shows every question from this quiz")
                         }
                     }
                 }
@@ -39,6 +41,7 @@ struct QuizHomeView: View {
             }
             .buttonStyle(.borderedProminent)
             .controlSize(.large)
+            .accessibilityHint("Starts a quiz on the words that are due")
             .padding(.horizontal, 20)
             .padding(.bottom, 8)
         }

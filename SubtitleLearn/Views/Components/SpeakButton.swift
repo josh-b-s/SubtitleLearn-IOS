@@ -12,6 +12,7 @@ struct SpeakButton: View {
                 .padding(.vertical, 6)
         }
         .buttonStyle(.bordered)
-        .accessibilityLabel("Play word")
+        .accessibilityLabel("Play pronunciation")
+        .accessibilityHint("Speaks the word aloud")
     }
 }

@@ -13,6 +13,7 @@ struct ReplayClipButton: View {
         .buttonStyle(.bordered)
         .controlSize(.large)
         .disabled(player.isPlaying)
+        .accessibilityHint("Plays the audio of this word from the video you watched")
     }
 
     private var label: String {

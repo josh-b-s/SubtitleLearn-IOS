@@ -121,6 +121,7 @@ struct TranslateView: View {
                     .background(Color(.systemGroupedBackground), in: Circle())
             }
             .accessibilityLabel("Speak Chinese")
+            .accessibilityHint("Starts the microphone and turns what you say into text")
         }
         .padding(.leading, 16)
         .padding(.trailing, 6)
@@ -135,7 +136,7 @@ struct TranslateView: View {
         if viewModel.dictionaryFailedToLoad {
             Text("The dictionary couldn't be loaded. Check that zh-en.tsv is included in the app target.")
                 .font(.footnote)
-                .foregroundStyle(.red)
+                .foregroundStyle(Color.errorText)
         } else if !viewModel.isDictionaryReady {
             HStack(spacing: 8) {
                 ProgressView()
@@ -150,12 +151,14 @@ struct TranslateView: View {
                     Text("INTERACTIVE BREAKDOWN")
                         .font(.subheadline.weight(.semibold))
                         .foregroundStyle(.secondary)
+                        .accessibilityAddTraits(.isHeader)
                     Spacer()
                     Toggle(isOn: $settings.hideLearnedInTranslate) {
                         Label("Hide learned", systemImage: "eye.slash")
                     }
                     .toggleStyle(.button)
                     .controlSize(.small)
+                    .accessibilityHint("Hides the pinyin and meaning of words you already know")
                 }
                 .padding(.top, 4)
             }

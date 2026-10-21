@@ -8,6 +8,7 @@ struct StatsSectionCard<Content: View>: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text(title).font(.subheadline.weight(.semibold))
+                .accessibilityAddTraits(.isHeader)
             content()
         }
         .padding(16)

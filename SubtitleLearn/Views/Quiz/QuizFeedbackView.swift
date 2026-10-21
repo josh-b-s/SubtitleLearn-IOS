@@ -12,6 +12,7 @@ struct QuizFeedbackView: View {
             Image(systemName: feedback.correct ? "checkmark.circle.fill" : "xmark.circle.fill")
                 .font(.system(size: iconSize))
                 .foregroundStyle(feedback.correct ? Color.green : Color.red)
+                .accessibilityHidden(true)
 
             Text(feedback.correct ? "Correct!" : "Not quite")
                 .font(.title2.weight(.semibold))

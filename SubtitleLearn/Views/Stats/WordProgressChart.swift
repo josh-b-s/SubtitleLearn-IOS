@@ -27,7 +27,7 @@ struct WordProgressChart: View {
                 if shown.contains(.learned) && gainedThisWeek > 0 {
                     Text("+\(gainedThisWeek) learned this week")
                         .font(.footnote.weight(.semibold))
-                        .foregroundStyle(Color.green)
+                        .foregroundStyle(Color.successText)
                         .padding(.horizontal, 10)
                         .padding(.vertical, 4)
                         .background(Color.green.opacity(0.15), in: RoundedRectangle(cornerRadius: 8))
@@ -91,6 +91,8 @@ struct WordProgressChart: View {
         }
         .chartForegroundStyleScale(domain: shown.map(\.label), range: shown.map(\.color))
         .chartYScale(domain: 0...max(peak, 1))
+        .accessibilityLabel("Words over the last 12 weeks")
+        .accessibilityValue(chartSummary)
         .chartLegend(shown.count > 1 ? .visible : .hidden)
         .chartXAxis {
             AxisMarks(values: .stride(by: .weekOfYear, count: 4)) {
@@ -99,6 +101,10 @@ struct WordProgressChart: View {
             }
         }
         .frame(height: 180)
+    }
+
+    private var chartSummary: String {
+        shown.map { "\($0.label) \(weeks.last?.value(for: $0) ?? 0)" }.joined(separator: ", ")
     }
 
     /// Totals only grow, so the latest week holds each line's highest point.

@@ -56,6 +56,7 @@ struct WordDetailSheet: View {
             .buttonBorderShape(.roundedRectangle(radius: 18))
             .controlSize(.large)
             .tint(isSaved ? .red : .accentColor)
+            .accessibilityHint(isSaved ? "Deletes this word and its progress" : "Adds this word to your quiz")
             .padding(.bottom, 8)
             .measureHeight(into: $buttonHeight)
         }
@@ -81,6 +82,7 @@ struct WordDetailSheet: View {
             Text("MEANINGS")
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(.secondary)
+                .accessibilityAddTraits(.isHeader)
 
             if token.meanings.isEmpty {
                 Text("No definition").foregroundStyle(.secondary)

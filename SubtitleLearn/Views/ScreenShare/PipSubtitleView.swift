@@ -21,7 +21,7 @@ struct PipSubtitleView: View {
             if model.lines.isEmpty {
                 Text("Listening…")
                     .font(.system(size: 14, weight: .medium))
-                    .foregroundStyle(Color.gray)
+                    .foregroundStyle(Color(white: 0.3))
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 SubtitleLineLayout(spacing: 8, maxRows: Self.maxRows) {

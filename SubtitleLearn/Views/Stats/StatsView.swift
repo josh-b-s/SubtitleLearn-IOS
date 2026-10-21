@@ -24,6 +24,7 @@ struct StatsView: View {
             VStack(spacing: 20) {
                 HStack {
                     Text("Progress").font(.title2.weight(.bold))
+                        .accessibilityAddTraits(.isHeader)
                     Spacer()
                     StreakBadge(days: stats.streak)
                 }
@@ -32,6 +33,7 @@ struct StatsView: View {
                     ForEach(StatsPeriod.allCases) { Text($0.label).tag($0) }
                 }
                 .pickerStyle(.segmented)
+                .accessibilityHint("Changes the time range of the statistics")
 
                 StatsSectionCard(title: "Words over time") {
                     WordProgressChart(weeks: stats.weekly, gainedThisWeek: stats.learnedThisWeek)
@@ -64,8 +66,8 @@ struct StatsView: View {
 
     private func accuracyColor(_ accuracy: Double?) -> Color? {
         guard let accuracy else { return nil }
-        if accuracy >= 0.85 { return .green }
-        if accuracy >= 0.70 { return .orange }
-        return .red
+        if accuracy >= 0.85 { return .successText }
+        if accuracy >= 0.70 { return .warningText }
+        return .errorText
     }
 }

@@ -33,6 +33,9 @@ struct QuizHistoryCard: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 20, style: .continuous))
         .contentShape(Rectangle())
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(record.date.formatted(date: .abbreviated, time: .shortened))
+        .accessibilityValue("\(Int((fraction * 100).rounded())) percent. \(summary)")
     }
 
     private var ring: some View {

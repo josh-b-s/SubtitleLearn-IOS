@@ -12,6 +12,7 @@ struct SettingsView: View {
                         ForEach(AppearanceMode.allCases) { Text($0.title).tag($0) }
                     }
                     .pickerStyle(.segmented)
+                    .accessibilityHint("Light, dark or follow the system")
                 }
 
                 Section {
@@ -36,6 +37,7 @@ struct SettingsView: View {
                         .autocorrectionDisabled()
                         .onSubmit { settings.geminiAPIKey = apiKeyDraft }
                         .onChange(of: apiKeyDraft) { _, new in settings.geminiAPIKey = new }
+                        .accessibilityHint("Optional. Needed only for level 3 quiz questions.")
                 } header: {
                     Text("Quiz")
                 } footer: {
@@ -44,6 +46,7 @@ struct SettingsView: View {
 
                 Section {
                     Stepper("\(settings.questionsPerQuiz) questions per quiz", value: $settings.questionsPerQuiz, in: 3...20)
+                        .accessibilityValue("\(settings.questionsPerQuiz) questions")
                 }
 
                 Section {

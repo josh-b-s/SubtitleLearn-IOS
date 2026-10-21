@@ -21,6 +21,7 @@ struct QuizDueBanner: View {
                 .font(.title)
                 .frame(width: iconBoxSize, height: iconBoxSize)
                 .background(.white.opacity(0.2), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 2) {
                 Text(title).font(.title2.weight(.bold))
                 Text(subtitle).font(.subheadline).opacity(0.85)
@@ -30,5 +31,6 @@ struct QuizDueBanner: View {
         .foregroundStyle(.white)
         .padding(16)
         .background(Color.accentColor, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .accessibilityElement(children: .combine)
     }
 }

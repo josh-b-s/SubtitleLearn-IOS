@@ -11,6 +11,7 @@ struct QuizHistoryDetailView: View {
                     HStack(alignment: .top, spacing: 12) {
                         Image(systemName: item.correct ? "checkmark.circle.fill" : "xmark.circle.fill")
                             .foregroundStyle(item.correct ? Color.green : Color.red)
+                            .accessibilityLabel(item.correct ? "Correct" : "Incorrect")
                         VStack(alignment: .leading, spacing: 2) {
                             Text(item.prompt).font(.headline)
                             Text("Answer: \(item.answer)")
@@ -18,6 +19,7 @@ struct QuizHistoryDetailView: View {
                                 .foregroundStyle(.secondary)
                         }
                     }
+                    .accessibilityElement(children: .combine)
                 }
             }
         }
