@@ -146,7 +146,7 @@ struct VocabularyView: View {
                     pendingDelete = offsets.map { current[$0] }
                 }
             }
-            .contentMargins(.top, 0, for: .scrollContent)
+            .contentMargins(.top, 8, for: .scrollContent)
             .alert(
                 deleteTitle,
                 isPresented: Binding(get: { !pendingDelete.isEmpty }, set: { if !$0 { pendingDelete = [] } }),
