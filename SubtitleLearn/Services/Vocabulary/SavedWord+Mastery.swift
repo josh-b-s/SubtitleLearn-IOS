@@ -3,6 +3,10 @@ import Foundation
 extension SavedWord {
     var isMastered: Bool { Mastery.isMastered(level) }
 
+    /// Level plus progress through it, such as "2.5".
+    var masteryLabel: String { Mastery.label(level: level, streak: levelStreak) }
+    var masteryScore: Double { Mastery.score(level: level, streak: levelStreak) }
+
     /// Records one graded answer: SM-2 schedule plus mastery level.
     /// A question easier than the word's level (a fallback) only affects the schedule.
     func record(correct: Bool, questionLevel: Int) {

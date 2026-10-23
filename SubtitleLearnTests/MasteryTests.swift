@@ -12,14 +12,28 @@ struct MasteryTests {
         #expect(next == .init(level: 2, streak: 0))
     }
 
-    @Test func missDropsOneLevelAndClearsStreak() {
+    @Test func missAfterAPassUndoesThePass() {
         let next = Mastery.next(.init(level: 3, streak: 1), correct: false)
-        #expect(next == .init(level: 2, streak: 0))
+        #expect(next == .init(level: 3, streak: 0))
+    }
+
+    @Test func missAtTheStartOfALevelDropsToHalfwayThroughTheLevelBelow() {
+        let next = Mastery.next(.init(level: 3, streak: 0), correct: false)
+        #expect(next == .init(level: 2, streak: 1))
     }
 
     @Test func missAtLevelOneStaysAtLevelOne() {
-        let next = Mastery.next(.init(level: 1, streak: 1), correct: false)
-        #expect(next == .init(level: 1, streak: 0))
+        for streak in 0...1 {
+            let next = Mastery.next(.init(level: 1, streak: streak), correct: false)
+            #expect(next.level == 1)
+        }
+        #expect(Mastery.next(.init(level: 1, streak: 0), correct: false) == .init(level: 1, streak: 0))
+    }
+
+    @Test func labelShowsHalfSteps() {
+        #expect(Mastery.label(level: 3, streak: 0) == "3")
+        #expect(Mastery.label(level: 2, streak: 1) == "2.5")
+        #expect(Mastery.label(level: 1, streak: 0) == "1")
     }
 
     @Test func passingLevelThreeMastersTheWord() {

@@ -107,9 +107,10 @@ final class QuizViewModel {
         var levelNote: String?
         if !question.isRetry, let word = allWords.first(where: { $0.word == question.word }) {
             let before = word.level
+            let scoreBefore = word.masteryScore
             word.record(correct: correct, questionLevel: question.level)
             context.insert(ReviewLog(word: word.word, correct: correct))
-            levelNote = Self.levelNote(from: before, to: word.level)
+            levelNote = Self.levelNote(for: word, levelBefore: before, scoreBefore: scoreBefore)
             tally(correct: correct, before: before, after: word.level)
             addToHistory(question, correct: correct, context: context)
         }
@@ -183,8 +184,9 @@ final class QuizViewModel {
         }
     }
 
-    private static func levelNote(from old: Int, to new: Int) -> String? {
-        if new < old { return "Back to level \(new)." }
+    private static func levelNote(for word: SavedWord, levelBefore old: Int, scoreBefore: Double) -> String? {
+        if word.masteryScore < scoreBefore { return "Down to \(word.masteryLabel)." }
+        let new = word.level
         guard new > old else { return nil }
         switch new {
         case 2: return "Level 2. Subtitles will now hide its meaning."

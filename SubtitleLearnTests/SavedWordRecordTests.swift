@@ -16,6 +16,12 @@ struct SavedWordRecordTests {
         #expect(w.levelStreak == 0)
     }
 
+    @Test func missLosesHalfALevel() {
+        let w = word(level: 3, streak: 0)
+        w.record(correct: false, questionLevel: 3)
+        #expect(w.masteryLabel == "2.5")
+    }
+
     @Test func easierFallbackQuestionOnlyAffectsSchedule() {
         let w = word(level: 3, streak: 1)
         w.record(correct: false, questionLevel: 1)

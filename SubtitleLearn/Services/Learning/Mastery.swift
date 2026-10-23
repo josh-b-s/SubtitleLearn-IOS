@@ -10,14 +10,33 @@ enum Mastery {
         var streak: Int
     }
 
-    /// Promote after `passesNeeded` correct answers in a row, drop one level on a miss.
+    /// Half-levels lost on a miss. One step is one correct answer, so 1 means a miss undoes the last pass.
+    static let missPenalty = 1
+
+    /// Promote after `passesNeeded` correct answers in a row, lose `missPenalty` steps on a miss.
     static func next(_ state: State, correct: Bool) -> State {
         guard state.level < masteredLevel else { return state }
-        guard correct else { return State(level: max(1, state.level - 1), streak: 0) }
+        guard correct else { return stateAtStep(step(of: state) - missPenalty) }
 
         let streak = state.streak + 1
         if streak >= passesNeeded { return State(level: state.level + 1, streak: 0) }
         return State(level: state.level, streak: streak)
+    }
+
+    /// Level plus progress through it: level 2 with one pass is 2.5.
+    static func score(level: Int, streak: Int) -> Double {
+        Double(level) + Double(streak) / Double(passesNeeded)
+    }
+
+    static func label(level: Int, streak: Int) -> String {
+        score(level: level, streak: streak).formatted(.number.precision(.fractionLength(0...1)))
+    }
+
+    private static func step(of state: State) -> Int { (state.level - 1) * passesNeeded + state.streak }
+
+    private static func stateAtStep(_ step: Int) -> State {
+        let floored = max(step, 0)
+        return State(level: floored / passesNeeded + 1, streak: floored % passesNeeded)
     }
 
     /// SM-2 quality. Easier levels earn less so a lucky guess can't stretch the interval.
