@@ -43,7 +43,7 @@ struct AddKnownWordView: View {
 
     private func select(_ match: DictionaryMatch) {
         selected = match
-        level = existing(match)?.level ?? 3
+        progress = existing(match)?.masteryScore ?? 3
     }
 
     private func gradePanel(_ match: DictionaryMatch) -> some View {
