@@ -25,6 +25,14 @@ struct SettingsView: View {
                 }
 
                 Section {
+                    Toggle("Speak slowly", isOn: $settings.speakSlowly)
+                } header: {
+                    Text("Pronunciation")
+                } footer: {
+                    Text("Slows the voice for word details and quizzes.")
+                }
+
+                Section {
                     Toggle("Hide hints for learned words", isOn: $settings.hideLearnedInPip)
                 } header: {
                     Text("Subtitles")

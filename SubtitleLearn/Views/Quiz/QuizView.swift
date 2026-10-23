@@ -44,6 +44,7 @@ struct QuizView: View {
                         Button("Quit") { confirmingQuit = true }
                             .accessibilityHint("Asks before leaving this quiz")
                     }
+                    ToolbarItem(placement: .topBarTrailing) { SlowSpeechButton() }
                 }
             }
             .toolbar(viewModel.isInProgress ? .hidden : .automatic, for: .tabBar)

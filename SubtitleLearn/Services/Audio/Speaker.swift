@@ -5,6 +5,7 @@ import AVFoundation
 final class Speaker {
     static let shared = Speaker()
     private let synthesizer = AVSpeechSynthesizer()
+    private static let slowRate = AVSpeechUtteranceDefaultSpeechRate * 0.7
 
     /// A tap should always be heard. Autoplay passes false so it stays quiet when the phone is on silent.
     func speak(_ text: String, ignoringMuteSwitch: Bool) {
@@ -18,6 +19,7 @@ final class Speaker {
         synthesizer.stopSpeaking(at: .immediate)
         let utterance = AVSpeechUtterance(string: text)
         utterance.voice = AVSpeechSynthesisVoice(language: "zh-CN")
+        if AppSettings.shared.speakSlowly { utterance.rate = Self.slowRate }
         synthesizer.speak(utterance)
     }
 }

@@ -18,6 +18,10 @@ final class AppSettings {
         didSet { UserDefaults.standard.set(preferOnDeviceSpeech, forKey: Self.onDeviceDefaultsKey) }
     }
 
+    var speakSlowly: Bool {
+        didSet { UserDefaults.standard.set(speakSlowly, forKey: Self.speakSlowlyDefaultsKey) }
+    }
+
     var hideLearnedInPip: Bool {
         didSet { UserDefaults.standard.set(hideLearnedInPip, forKey: Self.hideLearnedDefaultsKey) }
     }
@@ -39,6 +43,7 @@ final class AppSettings {
     private static let hideLearnedDefaultsKey = "hideLearnedInPip"
     private static let hideTranslateDefaultsKey = "hideLearnedInTranslate"
     private static let onDeviceDefaultsKey = "preferOnDeviceSpeech"
+    private static let speakSlowlyDefaultsKey = "speakSlowly"
     private static let keyDefaultsKey = "geminiAPIKey"
     private static let countDefaultsKey = "questionsPerQuiz"
 
@@ -52,6 +57,7 @@ final class AppSettings {
         let saved = UserDefaults.standard.integer(forKey: Self.countDefaultsKey)
         questionsPerQuiz = saved > 0 ? saved : 8
         preferOnDeviceSpeech = UserDefaults.standard.object(forKey: Self.onDeviceDefaultsKey) as? Bool ?? true
+        speakSlowly = UserDefaults.standard.bool(forKey: Self.speakSlowlyDefaultsKey)
         hideLearnedInPip = UserDefaults.standard.object(forKey: Self.hideLearnedDefaultsKey) as? Bool ?? true
         hideLearnedInTranslate = UserDefaults.standard.bool(forKey: Self.hideTranslateDefaultsKey)
         appearance = UserDefaults.standard.string(forKey: Self.appearanceDefaultsKey)

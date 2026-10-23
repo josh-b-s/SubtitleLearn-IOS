@@ -34,6 +34,9 @@ struct WordDetailSheet: View {
             }
             .padding(.top, 28)
             .padding(.bottom, 20)
+            .overlay(alignment: .topTrailing) {
+                SlowSpeechButton().font(.title3).padding(.top, 14)
+            }
             .measureHeight(into: $headerHeight)
 
             Divider()
