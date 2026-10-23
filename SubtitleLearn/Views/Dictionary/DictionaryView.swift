@@ -37,7 +37,7 @@ struct DictionaryView: View {
         }
         .sheet(item: $selected) { match in
             let saved = savedWords.first { $0.word == match.word }
-            WordDetailSheet(token: match.token, isSaved: saved != nil, level: saved?.levelBinding) {
+            WordDetailSheet(token: match.token, isSaved: saved != nil, progress: saved?.progressBinding) {
                 toggleSaved(match, existing: saved)
                 selected = nil
             }

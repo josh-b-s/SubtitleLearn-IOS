@@ -77,7 +77,7 @@ struct TranslateView: View {
             }
         }
         .sheet(item: $selectedToken) { token in
-            WordDetailSheet(token: token, isSaved: savedSet.contains(token.text), level: savedWord(for: token)?.levelBinding) {
+            WordDetailSheet(token: token, isSaved: savedSet.contains(token.text), progress: savedWord(for: token)?.progressBinding) {
                 toggleSaved(token)
                 selectedToken = nil
             }

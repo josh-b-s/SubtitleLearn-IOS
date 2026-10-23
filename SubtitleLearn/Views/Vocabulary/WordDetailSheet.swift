@@ -4,7 +4,7 @@ import SwiftUI
 struct WordDetailSheet: View {
     let token: WordToken
     let isSaved: Bool
-    var level: Binding<Int>? = nil   // only for saved words
+    var progress: Binding<Double>? = nil   // only for saved words
     let onToggleSave: () -> Void
 
     @State private var glosses: [CharGloss] = []
@@ -44,8 +44,8 @@ struct WordDetailSheet: View {
                     if !glosses.isEmpty {
                         CharacterBreakdown(glosses: glosses)
                     }
-                    if let level {
-                        MasteryPicker(level: level)
+                    if let progress {
+                        MasteryPicker(progress: progress)
                     }
                 }
                 .padding(.top, 20)

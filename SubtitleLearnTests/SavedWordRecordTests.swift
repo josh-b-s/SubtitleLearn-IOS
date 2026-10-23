@@ -31,17 +31,21 @@ struct SavedWordRecordTests {
         #expect(w.intervalDays == 1)
     }
 
-    @Test func setLevelClampsToValidRange() {
+    @Test func setProgressClampsToValidRange() {
         let w = word()
-        w.setLevel(9)
+        w.setProgress(9)
         #expect(w.level == Mastery.masteredLevel)
-        w.setLevel(-2)
+        w.setProgress(-2)
         #expect(w.level == 1)
+        #expect(w.levelStreak == 0)
     }
 
-    @Test func setLevelClearsStreak() {
-        let w = word(level: 2, streak: 1)
-        w.setLevel(3)
+    @Test func setProgressSetsLevelAndStreak() {
+        let w = word(level: 1, streak: 1)
+        w.setProgress(2.5)
+        #expect(w.level == 2)
+        #expect(w.levelStreak == 1)
+        w.setProgress(3)
         #expect(w.levelStreak == 0)
     }
 
@@ -52,9 +56,9 @@ struct SavedWordRecordTests {
 
     @Test func masteredDateIsSetOnMasteryAndClearedWhenItDrops() {
         let w = word()
-        w.setLevel(Mastery.masteredLevel)
+        w.setProgress(Double(Mastery.masteredLevel))
         #expect(w.masteredDate != nil)
-        w.setLevel(2)
+        w.setProgress(2)
         #expect(w.masteredDate == nil)
     }
 }

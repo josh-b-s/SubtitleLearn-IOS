@@ -11,7 +11,7 @@ struct AddKnownWordView: View {
     @State private var query = ""
     @State private var refresh = 0
     @State private var selected: DictionaryMatch?
-    @State private var level = 3
+    @State private var progress = 3.0
     @State private var showingForm = false
 
     private var savedSet: Set<String> { Set(savedWords.map(\.word)) }
@@ -61,10 +61,10 @@ struct AddKnownWordView: View {
                 .accessibilityLabel("Clear selection")
             }
 
-            MasteryPicker(level: $level)
+            MasteryPicker(progress: $progress)
 
             Button {
-                KnownWordAdder.add(match, level: level, existing: saved, into: modelContext)
+                KnownWordAdder.add(match, progress: progress, existing: saved, into: modelContext)
                 dismiss()
             } label: {
                 Text(saved == nil ? "Add to Vocabulary" : "Update level")
@@ -74,7 +74,7 @@ struct AddKnownWordView: View {
             .buttonStyle(.borderedProminent)
             .buttonBorderShape(.roundedRectangle(radius: 18))
             .controlSize(.large)
-            .accessibilityHint("Saves \(match.word) at level \(level == Mastery.masteredLevel ? "mastered" : String(level))")
+            .accessibilityHint("Saves \(match.word) at \(Mastery.summary(forScore: progress).lowercased())")
         }
         .padding(16)
         .background(.bar)

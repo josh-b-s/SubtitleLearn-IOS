@@ -80,7 +80,7 @@ struct VocabularyView: View {
             .searchable(text: $query, prompt: "Search vocabulary…")
         }
         .sheet(item: $selected) { word in
-            WordDetailSheet(token: word.token, isSaved: true, level: word.levelBinding) {
+            WordDetailSheet(token: word.token, isSaved: true, progress: word.progressBinding) {
                 modelContext.delete(word)
                 selected = nil
             }
@@ -146,7 +146,7 @@ struct VocabularyView: View {
                     pendingDelete = offsets.map { current[$0] }
                 }
             }
-            .contentMargins(.top, 8, for: .scrollContent)
+            .contentMargins(.top, 0, for: .scrollContent)
             .alert(
                 deleteTitle,
                 isPresented: Binding(get: { !pendingDelete.isEmpty }, set: { if !$0 { pendingDelete = [] } }),

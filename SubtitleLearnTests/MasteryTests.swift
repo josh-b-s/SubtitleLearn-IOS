@@ -36,6 +36,18 @@ struct MasteryTests {
         #expect(Mastery.label(level: 1, streak: 0) == "1")
     }
 
+    @Test func scoreMapsBackToLevelAndStreak() {
+        #expect(Mastery.state(forScore: 2.5) == .init(level: 2, streak: 1))
+        #expect(Mastery.state(forScore: 3) == .init(level: 3, streak: 0))
+        #expect(Mastery.state(forScore: Double(Mastery.masteredLevel)) == .init(level: Mastery.masteredLevel, streak: 0))
+        #expect(Mastery.state(forScore: 99).level == Mastery.masteredLevel)
+    }
+
+    @Test func summaryNamesTheTopScoreMastered() {
+        #expect(Mastery.summary(forScore: 2.5) == "Level 2.5")
+        #expect(Mastery.summary(forScore: 4) == "Mastered")
+    }
+
     @Test func passingLevelThreeMastersTheWord() {
         let next = Mastery.next(.init(level: 3, streak: 1), correct: true)
         #expect(next.level == Mastery.masteredLevel)

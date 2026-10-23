@@ -20,11 +20,12 @@ extension SavedWord {
         stampMastery(wasMastered: wasMastered)
     }
 
-    /// Manual override from the detail sheet. Clears the streak so the new level starts fresh.
-    func setLevel(_ newLevel: Int) {
+    /// Manual override from the mastery slider: sets level and streak together from a score such as 2.5.
+    func setProgress(_ score: Double) {
         let wasMastered = isMastered
-        level = min(max(newLevel, 1), Mastery.masteredLevel)
-        levelStreak = 0
+        let state = Mastery.state(forScore: score)
+        level = state.level
+        levelStreak = state.streak
         stampMastery(wasMastered: wasMastered)
     }
 

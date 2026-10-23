@@ -23,9 +23,23 @@ enum Mastery {
         return State(level: state.level, streak: streak)
     }
 
+    /// Distance between neighbouring scores: one pass.
+    static var scoreStep: Double { 1 / Double(passesNeeded) }
+
     /// Level plus progress through it: level 2 with one pass is 2.5.
     static func score(level: Int, streak: Int) -> Double {
-        Double(level) + Double(streak) / Double(passesNeeded)
+        Double(level) + Double(streak) * scoreStep
+    }
+
+    /// The level and streak a score stands for, snapped to the nearest step.
+    static func state(forScore score: Double) -> State {
+        stateAtStep(Int(((score - 1) / scoreStep).rounded()))
+    }
+
+    /// "Level 2.5", or "Mastered" at the top.
+    static func summary(forScore score: Double) -> String {
+        let result = state(forScore: score)
+        return isMastered(result.level) ? "Mastered" : "Level \(label(level: result.level, streak: result.streak))"
     }
 
     static func label(level: Int, streak: Int) -> String {
@@ -35,8 +49,8 @@ enum Mastery {
     private static func step(of state: State) -> Int { (state.level - 1) * passesNeeded + state.streak }
 
     private static func stateAtStep(_ step: Int) -> State {
-        let floored = max(step, 0)
-        return State(level: floored / passesNeeded + 1, streak: floored % passesNeeded)
+        let clamped = min(max(step, 0), (masteredLevel - 1) * passesNeeded)
+        return State(level: clamped / passesNeeded + 1, streak: clamped % passesNeeded)
     }
 
     /// SM-2 quality. Easier levels earn less so a lucky guess can't stretch the interval.
