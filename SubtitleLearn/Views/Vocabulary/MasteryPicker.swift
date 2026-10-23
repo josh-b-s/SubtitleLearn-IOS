@@ -28,14 +28,11 @@ struct MasteryPicker: View {
                 value: sliderValue,
                 in: 1...Double(Mastery.masteredLevel),
                 step: Mastery.scoreStep,
-                onEditingChanged: editingChanged
-            ) {
-                Text("Mastery")
-            } minimumValueLabel: {
-                Text("1")
-            } maximumValueLabel: {
-                Image(systemName: "checkmark.circle")
-            }
+                onEditingChanged: editingChanged,
+                minimumValueLabel: { Text("1") },
+                maximumValueLabel: { Image(systemName: "checkmark.circle") },
+                label: { Text("Mastery") }
+            )
             .accessibilityValue(summary)
             .accessibilityHint(caption)
 
