@@ -25,6 +25,12 @@ struct WordDetailSheet: View {
                         .font(.title2)
                         .foregroundStyle(Color.accentColor)
                 }
+                HStack(spacing: 12) {
+                    SpeakButton(word: token.text, font: .title3)
+                    if AudioClipStore.hasClip(for: token.text) { ReplayClipButton(word: token.text) }
+                }
+                .controlSize(.large)
+                .padding(.top, 8)
             }
             .padding(.top, 28)
             .padding(.bottom, 20)
@@ -58,8 +64,9 @@ struct WordDetailSheet: View {
             .controlSize(.large)
             .tint(isSaved ? .red : .accentColor)
             .accessibilityHint(isSaved ? "Deletes this word and its progress" : "Adds this word to your quiz")
-            .confirmationDialog("Remove \(token.text)?", isPresented: $confirmingRemove, titleVisibility: .visible) {
+            .alert("Remove \(token.text)?", isPresented: $confirmingRemove) {
                 Button("Remove", role: .destructive, action: onToggleSave)
+                Button("Cancel", role: .cancel) {}
             } message: {
                 Text("Its level and review history are deleted too.")
             }
