@@ -1,33 +1,31 @@
 import SwiftUI
 
-/// Level 3 body: sentence with a blank, tappable words, a word bank, then pinyin and meaning options.
+/// Level 3 body: the English sentence, its words as cards around a blank, a word bank, then pinyin and meaning options.
 struct ClozeQuestionView: View {
     let question: ClozeQuestion
     @Binding var selection: String?
     @Binding var pinyin: String?
     @Binding var meaning: String?
     let isRevealed: Bool
-    @State private var tapped: WordToken?
-    @ScaledMetric(relativeTo: .title) private var tokenSize = 28
+    @State private var showingHidden: Set<Int> = []   // cards the learner tapped to see their hidden hints
+    @ScaledMetric(relativeTo: .title) private var wordSize = ClozeWordCard.baseWordSize
 
     var body: some View {
         VStack(spacing: 20) {
             QuizPromptCard(alignment: .leading) {
                 Text("Fill in the blank, then pick its pinyin and meaning")
-                    .font(.headline)
-
-                FlowLayout(spacing: 6) {
-                    ForEach(question.before) { tokenButton($0) }
-                    blank
-                    ForEach(question.after) { tokenButton($0) }
-                }
-                .padding(.top, 4)
-
-                Text(question.translation)
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
 
-                tokenInfo
+                Text(question.translation)
+                    .font(.title3.weight(.semibold))
+
+                FlowLayout(spacing: 8) {
+                    ForEach(question.before) { card($0) }
+                    blank
+                    ForEach(question.after) { card($0) }
+                }
+                .padding(.top, 8)
             }
 
             VStack(spacing: 10) {
@@ -51,39 +49,30 @@ struct ClozeQuestionView: View {
 
     private var blank: some View {
         let color: Color = isRevealed ? .successText : (selection == nil ? .secondary : .accentColor)
+        let isOpen = selection == nil && !isRevealed
         return Text(isRevealed ? question.answer : (selection ?? "＿＿"))
-            .font(.system(size: tokenSize, weight: .bold))
+            .font(.system(size: wordSize, weight: .bold))
             .foregroundStyle(color)
-            .padding(.horizontal, 6)
-            .overlay(alignment: .bottom) {
-                Rectangle().frame(height: 2).foregroundStyle(isRevealed ? Color.green : Color.accentColor)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 6)
+            .overlay {
+                RoundedRectangle(cornerRadius: ClozeWordCard.cornerRadius, style: .continuous)
+                    .strokeBorder(isRevealed ? Color.green : Color.accentColor, style: StrokeStyle(lineWidth: 2, dash: isOpen ? [5] : []))
             }
             .accessibilityElement(children: .ignore)
             .accessibilityLabel("Blank in the sentence")
             .accessibilityValue(isRevealed ? question.answer : (selection ?? "Empty"))
     }
 
-    private func tokenButton(_ token: WordToken) -> some View {
-        Button { tapped = token } label: {
-            Text(token.text).font(.system(size: tokenSize, weight: .medium))
-        }
-        .buttonStyle(.plain)
-        .accessibilityHint("Shows its pinyin and meaning")
-    }
-
+    /// Words get a card. Punctuation stays plain text.
     @ViewBuilder
-    private var tokenInfo: some View {
-        if let token = tapped {
-            VStack(alignment: .leading, spacing: 2) {
-                Text("\(token.text)  \(token.pinyin)").foregroundStyle(Color.accentColor)
-                Text(token.meanings.isEmpty ? "No definition" : token.meanings.joined(separator: " · "))
-                    .foregroundStyle(.secondary)
+    private func card(_ token: WordToken) -> some View {
+        if token.text.contains(where: \.isHanCharacter) {
+            ClozeWordCard(token: token, showsHidden: showingHidden.contains(token.id)) {
+                showingHidden.formSymmetricDifference([token.id])
             }
-            .font(.subheadline)
         } else {
-            Text("Tap a word for its pinyin and meaning")
-                .font(.footnote)
-                .foregroundStyle(.secondary)
+            Text(token.text).font(.system(size: wordSize, weight: .medium))
         }
     }
 }

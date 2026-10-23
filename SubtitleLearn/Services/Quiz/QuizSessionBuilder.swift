@@ -28,10 +28,11 @@ struct QuizSessionBuilder {
             dictionary: dictionary
         )
         let (sentences, note) = await levelThreeSentences(for: chosen)
+        let levels = Dictionary(allWords.map { ($0.word, $0.level) }, uniquingKeysWith: { first, _ in first })
 
         var questions: [QuizQuestion] = []
         for word in chosen {
-            if let q = question(for: word, picker: picker, dictionary: dictionary, sentences: sentences[word.word] ?? []) {
+            if let q = question(for: word, picker: picker, dictionary: dictionary, levels: levels, sentences: sentences[word.word] ?? []) {
                 questions.append(q)
             }
         }
@@ -42,6 +43,7 @@ struct QuizSessionBuilder {
         for word: SavedWord,
         picker: DistractorPicker,
         dictionary: ChineseDictionary?,
+        levels: [String: Int],
         sentences: [ClozeSentence]
     ) -> QuizQuestion? {
         // Each level asks two question types. The streak says which: 0 is the first, 1 the second.
@@ -49,7 +51,7 @@ struct QuizSessionBuilder {
         if word.level >= 3 {
             if second, let dictionary,
                let cloze = sentences.shuffled().lazy.compactMap({
-                   ClozeQuestionBuilder.make(for: word, sentence: $0, picker: picker, dictionary: dictionary)
+                   ClozeQuestionBuilder.make(for: word, sentence: $0, picker: picker, dictionary: dictionary, levels: levels)
                }).first {
                 return QuizQuestion(word: word.word, level: 3, kind: .cloze(cloze))
             }

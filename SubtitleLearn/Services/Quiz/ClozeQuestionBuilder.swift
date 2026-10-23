@@ -1,12 +1,13 @@
 import Foundation
 
-/// Level 3: turns a cached sentence into a blank plus tappable tokens, with pinyin and meaning options. Graded locally.
+/// Level 3: turns a cached sentence into a blank plus word tokens, with pinyin and meaning options. Graded locally.
 enum ClozeQuestionBuilder {
     static func make(
         for word: SavedWord,
         sentence: ClozeSentence,
         picker: DistractorPicker,
-        dictionary: ChineseDictionary
+        dictionary: ChineseDictionary,
+        levels: [String: Int]
     ) -> ClozeQuestion? {
         guard sentence.word == word.word, let range = sentence.sentence.range(of: word.word) else { return nil }
 
@@ -20,8 +21,9 @@ enum ClozeQuestionBuilder {
         let wrongMeaning = picker.pick(for: target)
         guard wrong.count == 3, wrongPinyin.count == 3, wrongMeaning.count == 3 else { return nil }
 
-        let before = dictionary.tokens(for: String(sentence.sentence[..<range.lowerBound]))
-        let after = dictionary.tokens(for: String(sentence.sentence[range.upperBound...]))
+        // Neighbouring words show the hints their mastery level allows.
+        let before = MasteryRedactor.apply(to: dictionary.tokens(for: String(sentence.sentence[..<range.lowerBound])), levels: levels)
+        let after = MasteryRedactor.apply(to: dictionary.tokens(for: String(sentence.sentence[range.upperBound...])), levels: levels)
             .map { $0.reindexed($0.id + before.count + 1) }
 
         return ClozeQuestion(
