@@ -4,6 +4,9 @@ import SwiftUI
 struct FlowLayout: Layout {
     var spacing: CGFloat = 12
 
+    /// A row that exactly fills the width can overshoot by float rounding and wrap its last item onto an unmeasured line.
+    private static let slack: CGFloat = 0.5
+
     func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
         let maxWidth = proposal.width ?? .infinity
         var x: CGFloat = 0
@@ -13,7 +16,7 @@ struct FlowLayout: Layout {
 
         for subview in subviews {
             let size = measure(subview, width: maxWidth)
-            if x > 0 && x + size.width > maxWidth {
+            if x > 0 && x + size.width > maxWidth + Self.slack {
                 x = 0
                 y += rowHeight + spacing
                 rowHeight = 0
@@ -32,7 +35,7 @@ struct FlowLayout: Layout {
 
         for subview in subviews {
             let size = measure(subview, width: bounds.width)
-            if x > bounds.minX && x + size.width > bounds.maxX {
+            if x > bounds.minX && x + size.width > bounds.maxX + Self.slack {
                 x = bounds.minX
                 y += rowHeight + spacing
                 rowHeight = 0
