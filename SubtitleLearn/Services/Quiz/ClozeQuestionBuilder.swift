@@ -30,7 +30,7 @@ enum ClozeQuestionBuilder {
             translation: sentence.translation,
             choices: ([word.word] + wrong.map(\.word)).shuffled(),
             answer: word.word,
-            pinyin: .pinyin(target: target, wrong: wrongPinyin, speaks: true),
+            pinyin: .pinyin(target: target, wrong: wrongPinyin),
             meaning: QuizColumn(title: "MEANING", choices: ([target] + wrongMeaning).map(\.meaningText).shuffled(), answer: target.meaningText)
         )
     }

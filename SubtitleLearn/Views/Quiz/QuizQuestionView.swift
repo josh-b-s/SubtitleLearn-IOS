@@ -4,7 +4,7 @@ import SwiftUI
 struct QuizQuestionView: View {
     let question: QuizQuestion
     @Binding var selectedChoice: String?
-    @Binding var selectedPinyin: String?
+    @Binding var selectedFirst: String?
     @Binding var selectedSecond: String?
     let isRevealed: Bool
 
@@ -15,8 +15,8 @@ struct QuizQuestionView: View {
             case .choice(let q):
                 ChoiceQuestionView(question: q, selection: $selectedChoice, isRevealed: isRevealed)
                 if hasClip(for: q) { ReplayClipButton(word: question.word) }
-            case .pair(let q): PairQuestionView(question: q, pinyin: $selectedPinyin, second: $selectedSecond, isRevealed: isRevealed)
-            case .cloze(let q): ClozeQuestionView(question: q, selection: $selectedChoice, pinyin: $selectedPinyin, meaning: $selectedSecond, isRevealed: isRevealed)
+            case .pair(let q): PairQuestionView(question: q, first: $selectedFirst, second: $selectedSecond, isRevealed: isRevealed)
+            case .cloze(let q): ClozeQuestionView(question: q, selection: $selectedChoice, pinyin: $selectedFirst, meaning: $selectedSecond, isRevealed: isRevealed)
             }
         }
     }

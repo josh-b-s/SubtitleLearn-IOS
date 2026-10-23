@@ -7,7 +7,7 @@ enum QuizGrader {
         case (.choice(let q), .choice(let a)): a == q.answer
         case (.cloze(let q), .cloze(let word, let pinyin, let meaning)):
             word == q.answer && pinyin == q.pinyin.answer && meaning == q.meaning.answer
-        case (.pair(let q), .pair(let pinyin, let second)): pinyin == q.pinyin.answer && second == q.second.answer
+        case (.pair(let q), .pair(let first, let second)): first == q.first.answer && second == q.second.answer
         default: false
         }
     }
@@ -25,7 +25,7 @@ enum QuizGrader {
         switch question.kind {
         case .choice(let q):
             q.direction == .chineseToEnglish ? "\(q.prompt) means \"\(q.answer)\"" : "\(q.answer) means \"\(q.prompt)\""
-        case .pair(let q): "\(q.word) is \(q.pinyin.answer), \"\(q.meaning)\""
+        case .pair(let q): "\(q.word) is \(q.pinyin), \"\(q.meaning)\""
         case .cloze(let q): "\(q.answer) fits the blank: \(q.pinyin.answer), \"\(q.meaning.answer)\""
         }
     }
@@ -33,7 +33,7 @@ enum QuizGrader {
     static func answerText(for question: QuizQuestion) -> String {
         switch question.kind {
         case .choice(let q): q.answer
-        case .pair(let q): "\(q.pinyin.answer) · \(q.second.answer)"
+        case .pair(let q): "\(q.first.answer) · \(q.second.answer)"
         case .cloze(let q): "\(q.answer) · \(q.pinyin.answer) · \(q.meaning.answer)"
         }
     }

@@ -7,22 +7,36 @@ enum PairQuestionBuilder {
     static func make(for word: SavedWord, variant: Variant, picker: DistractorPicker) -> PairQuestion? {
         let target = Candidate(word)
         guard !target.meanings.isEmpty, !target.pinyin.isEmpty else { return nil }
-        let wrongPinyin = picker.pick(for: target)
+        let wrongFirst = picker.pick(for: target)
         let wrongSecond = picker.pick(for: target)
-        guard wrongPinyin.count == 3, wrongSecond.count == 3 else { return nil }
+        guard wrongFirst.count == 3, wrongSecond.count == 3 else { return nil }
 
-        // The listening question plays the prompt, so its options stay silent.
-        let pinyin = QuizColumn.pinyin(target: target, wrong: wrongPinyin, speaks: variant != .audio)
-        let second: QuizColumn
         let prompt: PairQuestion.Prompt
+        let first: QuizColumn
+        let second: QuizColumn
         switch variant {
-        case .wordToMeaning, .audio:
-            second = QuizColumn(title: "MEANING", choices: ([target] + wrongSecond).map(\.meaningText).shuffled(), answer: target.meaningText)
-            prompt = variant == .audio ? .audio : .word
+        case .wordToMeaning:
+            prompt = .word
+            first = .pinyin(target: target, wrong: wrongFirst)
+            second = meanings(target: target, wrong: wrongSecond)
         case .meaningToWord:
-            second = QuizColumn(title: "WORD", choices: ([target] + wrongSecond).map(\.word).shuffled(), answer: target.word)
             prompt = .meaning
+            first = .pinyin(target: target, wrong: wrongFirst)
+            second = words(target: target, wrong: wrongSecond)
+        case .audio:
+            // The word is played, so neither column speaks when tapped.
+            prompt = .audio
+            first = words(target: target, wrong: wrongFirst)
+            second = meanings(target: target, wrong: wrongSecond)
         }
-        return PairQuestion(prompt: prompt, word: target.word, meaning: target.meaningText, pinyin: pinyin, second: second)
+        return PairQuestion(prompt: prompt, word: target.word, pinyin: target.pinyin, meaning: target.meaningText, first: first, second: second)
+    }
+
+    private static func meanings(target: Candidate, wrong: [Candidate]) -> QuizColumn {
+        QuizColumn(title: "MEANING", choices: ([target] + wrong).map(\.meaningText).shuffled(), answer: target.meaningText)
+    }
+
+    private static func words(target: Candidate, wrong: [Candidate]) -> QuizColumn {
+        QuizColumn(title: "WORD", choices: ([target] + wrong).map(\.word).shuffled(), answer: target.word)
     }
 }

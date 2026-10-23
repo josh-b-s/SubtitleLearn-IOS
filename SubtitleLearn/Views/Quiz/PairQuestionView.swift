@@ -1,9 +1,9 @@
 import SwiftUI
 
-/// Level 2 and listening body: pinyin options on the left, meaning or word options on the right.
+/// Level 2 and listening body: two columns of options, one pick from each.
 struct PairQuestionView: View {
     let question: PairQuestion
-    @Binding var pinyin: String?
+    @Binding var first: String?
     @Binding var second: String?
     let isRevealed: Bool
 
@@ -14,14 +14,14 @@ struct PairQuestionView: View {
         VStack(spacing: 20) {
             QuizPromptCard {
                 prompt
-                Text("Pick the pinyin and the \(question.second.title.lowercased())")
+                Text("Pick the \(question.first.title.lowercased()) and the \(question.second.title.lowercased())")
                     .font(.headline)
                     .padding(.top, 4)
             }
 
             QuizColumnsView(
-                first: question.pinyin, second: question.second,
-                firstSelection: $pinyin, secondSelection: $second,
+                first: question.first, second: question.second,
+                firstSelection: $first, secondSelection: $second,
                 isRevealed: isRevealed
             )
         }

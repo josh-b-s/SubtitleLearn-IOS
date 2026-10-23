@@ -10,8 +10,8 @@ extension QuizQuestion {
                                                choices: q.choices.shuffled(), answer: q.answer,
                                                choicePinyin: q.choicePinyin))
         case .pair(let q):
-            reordered = .pair(PairQuestion(prompt: q.prompt, word: q.word, meaning: q.meaning,
-                                           pinyin: q.pinyin.shuffled(), second: q.second.shuffled()))
+            reordered = .pair(PairQuestion(prompt: q.prompt, word: q.word, pinyin: q.pinyin, meaning: q.meaning,
+                                           first: q.first.shuffled(), second: q.second.shuffled()))
         case .cloze(let q):
             reordered = .cloze(ClozeQuestion(before: q.before, after: q.after, translation: q.translation,
                                              choices: q.choices.shuffled(), answer: q.answer,

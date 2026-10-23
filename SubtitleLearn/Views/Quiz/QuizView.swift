@@ -113,7 +113,7 @@ struct QuizView: View {
                     QuizQuestionView(
                         question: question,
                         selectedChoice: $viewModel.selectedChoice,
-                        selectedPinyin: $viewModel.selectedPinyin,
+                        selectedFirst: $viewModel.selectedFirst,
                         selectedSecond: $viewModel.selectedSecond,
                         isRevealed: viewModel.feedback != nil
                     )

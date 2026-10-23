@@ -18,7 +18,7 @@ final class QuizViewModel {
     private(set) var note: String?
 
     var selectedChoice: String?
-    var selectedPinyin: String?
+    var selectedFirst: String?
     var selectedSecond: String?
 
     private(set) var total = 0
@@ -65,10 +65,10 @@ final class QuizViewModel {
         guard let question = currentQuestion else { return nil }
         switch question.kind {
         case .pair:
-            guard let pinyin = selectedPinyin, let second = selectedSecond else { return nil }
-            return .pair(pinyin: pinyin, second: second)
+            guard let first = selectedFirst, let second = selectedSecond else { return nil }
+            return .pair(first: first, second: second)
         case .cloze:
-            guard let word = selectedChoice, let pinyin = selectedPinyin, let meaning = selectedSecond else { return nil }
+            guard let word = selectedChoice, let pinyin = selectedFirst, let meaning = selectedSecond else { return nil }
             return .cloze(word: word, pinyin: pinyin, meaning: meaning)
         case .choice:
             return selectedChoice.map { QuizAnswer.choice($0) }
@@ -132,7 +132,7 @@ final class QuizViewModel {
 
     func next() {
         selectedChoice = nil
-        selectedPinyin = nil
+        selectedFirst = nil
         selectedSecond = nil
         phase = queue.isEmpty
             ? .finished(QuizSummary(attempted: attempted, correctFirstTry: correctFirstTry, leveledUp: leveledUp, mastered: mastered))
@@ -144,7 +144,7 @@ final class QuizViewModel {
         answered = nil
         total = 0
         selectedChoice = nil
-        selectedPinyin = nil
+        selectedFirst = nil
         selectedSecond = nil
         note = nil
         resetTallies()
