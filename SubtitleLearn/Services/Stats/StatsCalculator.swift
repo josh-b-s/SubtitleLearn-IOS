@@ -32,7 +32,7 @@ enum StatsCalculator {
     }
 
     /// Consecutive days with a review. A day with no review yet today doesn't break the streak.
-    private static func streak(logs: [ReviewLog], today: Date, calendar: Calendar) -> Int {
+    static func streak(logs: [ReviewLog], today: Date, calendar: Calendar) -> Int {
         let days = Set(logs.map { calendar.startOfDay(for: $0.date) })
         var day = today
         if !days.contains(day) { day = calendar.date(byAdding: .day, value: -1, to: day) ?? day }
