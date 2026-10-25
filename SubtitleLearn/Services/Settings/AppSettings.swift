@@ -30,6 +30,15 @@ final class AppSettings {
         didSet { UserDefaults.standard.set(hideLearnedInTranslate, forKey: Self.hideTranslateDefaultsKey) }
     }
 
+    var reminderEnabled: Bool {
+        didSet { UserDefaults.standard.set(reminderEnabled, forKey: Self.reminderEnabledDefaultsKey) }
+    }
+
+    /// Minutes after midnight.
+    var reminderMinutes: Int {
+        didSet { UserDefaults.standard.set(reminderMinutes, forKey: Self.reminderMinutesDefaultsKey) }
+    }
+
     var appearance: AppearanceMode {
         didSet { UserDefaults.standard.set(appearance.rawValue, forKey: Self.appearanceDefaultsKey) }
     }
@@ -44,6 +53,8 @@ final class AppSettings {
     private static let hideTranslateDefaultsKey = "hideLearnedInTranslate"
     private static let onDeviceDefaultsKey = "preferOnDeviceSpeech"
     private static let speakSlowlyDefaultsKey = "speakSlowly"
+    private static let reminderEnabledDefaultsKey = "reminderEnabled"
+    private static let reminderMinutesDefaultsKey = "reminderMinutes"
     private static let keyDefaultsKey = "geminiAPIKey"
     private static let countDefaultsKey = "questionsPerQuiz"
 
@@ -60,6 +71,8 @@ final class AppSettings {
         speakSlowly = UserDefaults.standard.bool(forKey: Self.speakSlowlyDefaultsKey)
         hideLearnedInPip = UserDefaults.standard.object(forKey: Self.hideLearnedDefaultsKey) as? Bool ?? true
         hideLearnedInTranslate = UserDefaults.standard.bool(forKey: Self.hideTranslateDefaultsKey)
+        reminderEnabled = UserDefaults.standard.bool(forKey: Self.reminderEnabledDefaultsKey)
+        reminderMinutes = UserDefaults.standard.object(forKey: Self.reminderMinutesDefaultsKey) as? Int ?? 19 * 60
         appearance = UserDefaults.standard.string(forKey: Self.appearanceDefaultsKey)
             .flatMap(AppearanceMode.init(rawValue:)) ?? .system
         vocabularySort = UserDefaults.standard.string(forKey: Self.vocabularySortDefaultsKey)

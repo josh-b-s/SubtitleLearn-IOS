@@ -40,6 +40,8 @@ struct SettingsView: View {
                     Text("Words past level 1 lose their meaning in the subtitles, and past level 2 their pinyin too. Look them up in the app if you need a reminder.")
                 }
 
+                ReminderSettingsSection()
+
                 Section {
                     SecureField("Gemini API key", text: $apiKeyDraft)
                         .textInputAutocapitalization(.never)

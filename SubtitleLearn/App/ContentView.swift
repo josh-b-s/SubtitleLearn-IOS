@@ -38,6 +38,7 @@ struct ContentView: View {
                 .tag(Tab.settings)
         }
         .preferredColorScheme(settings.appearance.colorScheme)
+        .refreshesReviewReminders()
         .fullScreenCover(isPresented: showOnboarding) {
             OnboardingView { hasSeenOnboarding = true }
         }
